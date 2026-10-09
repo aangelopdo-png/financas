@@ -572,7 +572,7 @@ function statusFatura(mes, c, total) {
 }
 
 // ============ diálogos próprios (sem alert/confirm/prompt) ============
-function dialogo2(html) { let d = $("#dlg2"); if (!d) { d = document.createElement("dialog"); d.id = "dlg2"; document.body.appendChild(d); } d.innerHTML = html; d.showModal(); return d; }
+function dialogo2(html) { let d = $("#dlg2"); if (!d) { d = document.createElement("dialog"); d.id = "dlg2"; document.body.appendChild(d); } d.innerHTML = html; d.onclick = (e) => { if (e.target === d) d.close(); }; d.showModal(); return d; }
 function confirmar(msg) { return new Promise((res) => { const d = dialogo2(`<form method="dialog"><h3>${esc(msg)}</h3><div class="rodape-form"><button class="btn" value="nao">Cancelar</button><button class="btn primario" value="sim" autofocus>Confirmar</button></div></form>`); d.onclose = () => res(d.returnValue === "sim"); }); }
 function perguntar(msg, valor = "") { return new Promise((res) => { const d = dialogo2(`<form method="dialog"><h3>${esc(msg)}</h3><div class="campo"><input name="v" autofocus value="${esc(valor)}"></div><div class="rodape-form"><button class="btn" type="button" data-fechar>Cancelar</button><button class="btn primario" type="submit">OK</button></div></form>`); const f = $("form", d); $("[data-fechar]", d).onclick = () => d.close("nao"); f.onsubmit = (e) => { e.preventDefault(); d.close("sim:" + f.v.value); }; d.onclose = () => res(d.returnValue.startsWith("sim:") ? d.returnValue.slice(4) : null); }); }
 function avisar(msg) { let t = $("#toast"); if (!t) { t = document.createElement("div"); t.id = "toast"; t.className = "toast"; document.body.appendChild(t); } t.textContent = msg; t.classList.add("on"); clearTimeout(avisar.t); avisar.t = setTimeout(() => t.classList.remove("on"), 4500); }
@@ -938,6 +938,7 @@ function abrir(html, onSubmit) {
   dlg.innerHTML = `<form method="dialog">${html}</form>`;
   const form = $("form", dlg);
   form.addEventListener("submit", (e) => { if (e.submitter?.value === "cancelar") return; e.preventDefault(); if (onSubmit(form) !== false) dlg.close(); });
+  dlg.onclick = (e) => { if (e.target === dlg) dlg.close(); }; // tocar fora fecha
   dlg.showModal();
   return form;
 }
@@ -977,7 +978,7 @@ function formLancamento(l) {
     <div class="campo"><label>Observação</label><input name="obs" value="${esc(l.obs || "")}"></div>
     <div class="rodape-form">
       ${!novo ? `<button type="button" class="btn perigo esq" data-acao="excluirNoForm" data-id="${l.id}">Excluir</button>` : ""}
-      <button class="btn" value="cancelar">Cancelar</button><button class="btn primario" type="submit">Salvar</button>
+      <button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn primario" type="submit">Salvar</button>
     </div>`, (f) => {
       const fd = Object.fromEntries(new FormData(f)), modo = fd.modo;
       let valor = Number(fd.valor);
@@ -1024,7 +1025,7 @@ function formConta(c) {
       <div class="campo"><label>Dia de vencimento</label><input name="vencimento" type="number" min="1" max="31" inputmode="numeric" value="${c.vencimento || ""}"></div>
     </div>
     <div class="campo"><label>Limite (R$)</label><input name="limite" type="number" step="0.01" inputmode="decimal" value="${c.limite || ""}"></div>
-    <div class="rodape-form">${!novo ? `<button type="button" class="btn perigo esq" data-acao="excluirConta" data-id="${c.id}">Excluir</button>` : ""}<button class="btn" value="cancelar">Cancelar</button><button class="btn primario" type="submit">Salvar</button></div>`, (f) => {
+    <div class="rodape-form">${!novo ? `<button type="button" class="btn perigo esq" data-acao="excluirConta" data-id="${c.id}">Excluir</button>` : ""}<button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn primario" type="submit">Salvar</button></div>`, (f) => {
       const fd = Object.fromEntries(new FormData(f));
       const obj = { id: c.id || uid("C"), nome: fd.nome.trim(), tipo: fd.tipo, final: fd.final.trim(), fechamento: Number(fd.fechamento) || null, vencimento: Number(fd.vencimento) || null, limite: Number(fd.limite) || null };
       const i = D.contas.findIndex((x) => x.id === obj.id); if (i >= 0) D.contas[i] = obj; else D.contas.push(obj); mudou();
@@ -1038,7 +1039,7 @@ function formInvestimento(inv) {
     <div class="linha"><div class="campo"><label>Instituição</label><input name="instituicao" value="${esc(inv.instituicao || "")}"></div><div class="campo"><label>Tipo</label><input name="tipo" value="${esc(inv.tipo || "")}" placeholder="CDB, Tesouro, poupança…"></div></div>
     <div class="linha"><div class="campo"><label>Objetivo</label><input name="objetivo" value="${esc(inv.objetivo || "")}" placeholder="reserva, faculdade, aposentadoria…"></div><div class="campo"><label>De quem</label><select name="pessoa">${opts(D.pessoas, inv.pessoa)}</select></div></div>
     <div class="campo"><label>Saldo atual (R$)</label><input name="saldo" type="number" step="0.01" inputmode="decimal" required value="${inv.saldo}"></div>
-    <div class="rodape-form">${!novo ? `<button type="button" class="btn perigo esq" data-acao="excluirInv" data-id="${inv.id}">Excluir</button>` : ""}<button class="btn" value="cancelar">Cancelar</button><button class="btn primario" type="submit">Salvar</button></div>`, (f) => {
+    <div class="rodape-form">${!novo ? `<button type="button" class="btn perigo esq" data-acao="excluirInv" data-id="${inv.id}">Excluir</button>` : ""}<button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn primario" type="submit">Salvar</button></div>`, (f) => {
       const fd = Object.fromEntries(new FormData(f));
       const obj = { id: inv.id || uid("I"), nome: fd.nome.trim(), instituicao: fd.instituicao.trim(), tipo: fd.tipo.trim(), objetivo: fd.objetivo.trim(), pessoa: fd.pessoa, saldo: Number(fd.saldo) || 0, atualizadoEm: new Date().toLocaleDateString("pt-BR") };
       const i = D.investimentos.findIndex((x) => x.id === obj.id); if (i >= 0) D.investimentos[i] = obj; else D.investimentos.push(obj); mudou();
@@ -1049,7 +1050,7 @@ function formPagar(c, total) {
   abrir(`<h3>Pagar ${esc(c.nome)} · ${mesLongo(mesAtual)}</h3>
     <div class="linha"><div class="campo"><label>Valor pago (R$)</label><input name="valor" type="number" step="0.01" inputmode="decimal" required value="${total.toFixed(2)}"></div><div class="campo"><label>Data</label><input name="data" type="date" value="${new Date().toISOString().slice(0, 10)}"></div></div>
     <p class="pequeno">Se pagou menos que a fatura (mínimo ou parcial), lance a diferença com os juros como despesa no mês seguinte.</p>
-    <div class="rodape-form"><button class="btn" value="cancelar">Cancelar</button><button class="btn primario" type="submit">Confirmar pagamento</button></div>`, (f) => {
+    <div class="rodape-form"><button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn primario" type="submit">Confirmar pagamento</button></div>`, (f) => {
       const fd = Object.fromEntries(new FormData(f));
       D.pagamentos = D.pagamentos.filter((p) => !(p.mes === mesAtual && p.contaId === c.id));
       D.pagamentos.push({ mes: mesAtual, contaId: c.id, valor: Number(fd.valor), data: fd.data }); mudou();
@@ -1057,7 +1058,7 @@ function formPagar(c, total) {
 }
 function formSaldo() {
   abrir(`<h3>Saldo inicial de ${mesLongo(mesAtual)}</h3><div class="campo"><label>Quanto tinha em conta no começo do mês (R$)</label><input name="saldo" type="number" step="0.01" inputmode="decimal" autofocus value="${D.saldos[mesAtual] ?? ""}"></div>
-    <div class="rodape-form"><button class="btn" value="cancelar">Cancelar</button><button class="btn primario" type="submit">Salvar</button></div>`, (f) => { D.saldos[mesAtual] = Number(new FormData(f).get("saldo")) || 0; mudou(); });
+    <div class="rodape-form"><button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn primario" type="submit">Salvar</button></div>`, (f) => { D.saldos[mesAtual] = Number(new FormData(f).get("saldo")) || 0; mudou(); });
 }
 function formCategoria(cat) {
   const novo = !cat; cat = cat || { nome: "", grupo: "", cor: "#2a78d6" };
@@ -1065,7 +1066,7 @@ function formCategoria(cat) {
   abrir(`<h3>${novo ? "Nova categoria" : "Editar categoria"}</h3>
     <div class="linha"><div class="campo"><label>Nome</label><input name="nome" required value="${esc(cat.nome)}"></div><div class="campo"><label>Cor</label><input name="cor" type="color" value="${cat.cor}" style="height:42px;padding:4px"></div></div>
     <div class="campo"><label>Grupo (plano de contas)</label><input name="grupo" list="grupos" value="${esc(cat.grupo || "")}" placeholder="Casa, Filhos, Transporte…"><datalist id="grupos">${grupos.map((g) => `<option value="${esc(g)}">`).join("")}</datalist></div>
-    <div class="rodape-form"><button class="btn" value="cancelar">Cancelar</button><button class="btn primario" type="submit">Salvar</button></div>`, (f) => {
+    <div class="rodape-form"><button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn primario" type="submit">Salvar</button></div>`, (f) => {
       const fd = Object.fromEntries(new FormData(f));
       const obj = { id: cat.id || uid("K"), nome: fd.nome.trim(), grupo: fd.grupo.trim() || "Outros", cor: fd.cor };
       const i = D.categorias.findIndex((x) => x.id === obj.id); if (i >= 0) D.categorias[i] = obj; else D.categorias.push(obj); mudou();
