@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1b4fa0">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -46,6 +46,7 @@
       --shadow: none; --shadow-lg: 0 12px 40px rgba(0,0,0,.5);
   }
   * { box-sizing: border-box; }
+  html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
   html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", Roboto, Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
   button, input, select, textarea { font: inherit; color: inherit; }
   a { color: var(--accent-2); }
@@ -152,7 +153,7 @@
   .seg button { flex: 1; border: 0; background: transparent; padding: 8px 6px; border-radius: 8px; cursor: pointer; color: var(--text-2); font-weight: 500; font-size: 13px; }
   .seg button.ativo { background: var(--surface); color: var(--text); font-weight: 650; box-shadow: var(--shadow); }
   .filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
-  .filtros select, .filtros input { width: auto; min-width: 120px; flex: 1; font-size: 14px; padding: 8px 10px; }
+  .filtros select, .filtros input { width: auto; min-width: 120px; flex: 1; font-size: 16px; padding: 8px 10px; }
   .filtros label { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 13px; }
   .chk { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); }
   .vazio { color: var(--muted); padding: 22px; text-align: center; font-size: 14px; }
@@ -176,11 +177,11 @@
   .tip { position: fixed; pointer-events: none; background: var(--text); color: var(--bg); padding: 6px 10px; border-radius: 8px; font-size: 12px; z-index: 20; display: none; white-space: nowrap; }
   .fab { display: none; position: fixed; right: 18px; bottom: calc(74px + env(safe-area-inset-bottom)); width: 58px; height: 58px; border-radius: 18px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #fff; border: 0; box-shadow: 0 10px 24px rgba(27,79,160,.4); z-index: 6; padding: 0; place-items: center; }
   .fab svg { width: 26px; height: 26px; }
-  .orc-input { width: 110px; text-align: right; padding: 6px 8px; font-size: 14px; }
+  .orc-input { width: 110px; text-align: right; padding: 6px 8px; font-size: 16px; }
   .toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 14px; z-index: 30; opacity: 0; pointer-events: none; transition: .2s; max-width: calc(100% - 32px); text-align: center; }
   .toast.on { opacity: 1; transform: translateX(-50%); }
   #dlg2 { max-width: 420px; }
-  textarea.copia { min-height: 160px; font: 12px/1.4 ui-monospace, Consolas, monospace; }
+  textarea.copia { min-height: 160px; font: 16px/1.4 ui-monospace, Consolas, monospace; }
   .passos { margin: 0; padding-left: 20px; line-height: 1.7; }
   .banner { display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); font-size: 13px; margin-bottom: 14px; }
 
