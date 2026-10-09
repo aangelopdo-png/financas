@@ -47,6 +47,9 @@
   }
   * { box-sizing: border-box; }
   html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+  body { overflow-x: hidden; max-width: 100vw; }
+  .duas > *, .grid > *, .hero .mini > *, .lista, .item .txt { min-width: 0; }
+  .tile .valor, .hero .big, .hero .mini b { overflow-wrap: anywhere; }
   html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", Roboto, Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
   button, input, select, textarea { font: inherit; color: inherit; }
   a { color: var(--accent-2); }
@@ -206,6 +209,14 @@
     .fab { display: grid; }
     .linha3 { grid-template-columns: 1fr 1fr; }
     .ocultar-m { display: none !important; }
+    .pill { white-space: normal; text-align: right; }
+    .item .dir { max-width: 46%; }
+    .item .val { font-size: 15px; }
+    .tile .valor { font-size: 17px; }
+    .hero .mini b { font-size: 13px; }
+    td, th { overflow-wrap: anywhere; }
+    .barra { min-width: 50px; }
+    .acoes .btn.mini { padding: 3px 8px; }
     dialog { width: 100%; max-width: none; margin: auto 0 0; border-radius: 22px 22px 0 0; max-height: 94vh; }
     dialog form { padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); }
   }
