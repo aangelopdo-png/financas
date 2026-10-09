@@ -173,10 +173,16 @@
   .rodape-form .esq { margin-right: auto; }
 
   .legenda { display: flex; gap: 14px; font-size: 12px; color: var(--text-2); margin: 4px 0 10px; flex-wrap: wrap; }
-  .proj { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; align-items: end; height: 160px; padding: 6px 0 0; min-width: 560px; }
+  .proj { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; align-items: end; height: 160px; padding: 6px 0 0; }
   .proj .col { display: flex; gap: 3px; align-items: end; height: 100%; }
   .proj .col i { flex: 1; border-radius: 4px 4px 0 0; min-height: 3px; display: block; opacity: .95; }
-  .proj-x { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; font-size: 11px; color: var(--muted); text-align: center; margin-top: 6px; min-width: 560px; }
+  .proj-x { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; font-size: 11px; color: var(--muted); text-align: center; margin-top: 6px; }
+  .so-m { display: none; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .chip { border: 1px solid var(--border); background: var(--surface-2); border-radius: 999px; padding: 5px 11px; font-size: 13px; cursor: pointer; }
+  .chip.ativo { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  .faixa-atualizacao { display: flex; gap: 10px; align-items: center; justify-content: center; padding: 10px 14px; background: var(--accent); color: var(--accent-ink); font-size: 14px; }
+  .faixa-atualizacao button { background: #fff; color: var(--accent); border: 0; border-radius: 999px; padding: 5px 12px; font-weight: 700; cursor: pointer; }
   .tip { position: fixed; pointer-events: none; background: var(--text); color: var(--bg); padding: 6px 10px; border-radius: 8px; font-size: 12px; z-index: 20; display: none; white-space: nowrap; }
   .fab { display: none; position: fixed; right: 18px; bottom: calc(74px + env(safe-area-inset-bottom)); width: 58px; height: 58px; border-radius: 18px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #fff; border: 0; box-shadow: 0 10px 24px rgba(27,79,160,.4); z-index: 6; padding: 0; place-items: center; }
   .fab svg { width: 26px; height: 26px; }
@@ -209,6 +215,8 @@
     .fab { display: grid; }
     .linha3 { grid-template-columns: 1fr 1fr; }
     .ocultar-m { display: none !important; }
+    .so-m { display: block; }
+    .proj { gap: 3px; height: 130px; } .proj .col { gap: 1px; } .proj-x { gap: 3px; font-size: 9px; }
     .pill { white-space: normal; text-align: right; }
     .item .dir { max-width: 46%; }
     .item .val { font-size: 15px; }
@@ -240,7 +248,7 @@
 <div class="tip" id="tip"></div>
 <dialog id="dlg"></dialog>
 
-<script>window.FIN_MODO = "local"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
+<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-10-09T02:12:21.826Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
 <script>
 (function () {
 // Agente de alertas — Finanças Angelo
@@ -571,6 +579,47 @@ function statusFatura(mes, c, total) {
   return { cls: "", txt: `vence dia ${c.vencimento}` };
 }
 
+// ============ número de alertas no ícone do app ============
+let badgeTimer = null;
+function agendarBadge() { clearTimeout(badgeTimer); badgeTimer = setTimeout(atualizarBadge, 800); }
+async function atualizarBadge() {
+  if (!("setAppBadge" in navigator) || !D) return;
+  try {
+    const a = await Store.alertas();
+    const n = a.alertas.filter((x) => x.nivel === "critico" || x.nivel === "aviso").length;
+    if (n) await navigator.setAppBadge(n); else await navigator.clearAppBadge();
+  } catch (e) { /* sem permissão ou não suportado */ }
+}
+async function ativarBadge() {
+  if (!("setAppBadge" in navigator)) return avisar("Este navegador não mostra número no ícone. No iPhone, precisa estar instalado na tela inicial (iOS 16.4 ou mais novo).");
+  try {
+    if ("Notification" in window && Notification.permission !== "granted") { const p = await Notification.requestPermission(); if (p !== "granted") return avisar("Sem permissão de notificação o iPhone não mostra o número no ícone."); }
+    await atualizarBadge(); avisar("Aviso no ícone ativado. O número é atualizado toda vez que você abre o app."); render();
+  } catch (e) { avisar("Não consegui ativar: " + e.message); }
+}
+
+// ============ atualização do app sem reinstalar ============
+async function verificarAtualizacao(manual) {
+  if (!window.FIN_VERSAO) { if (manual) avisar("Esta versão não tem verificação automática."); return; }
+  try {
+    const r = await fetch("./versao.json?t=" + Date.now(), { cache: "no-store" });
+    const j = await r.json();
+    if (j.versao && j.versao !== window.FIN_VERSAO) {
+      let f = $("#faixaAtualizacao");
+      if (!f) { f = document.createElement("div"); f.id = "faixaAtualizacao"; f.className = "faixa-atualizacao"; document.querySelector("header").after(f); }
+      f.innerHTML = `Nova versão disponível. <button type="button" id="btnAtualizar">Atualizar agora</button>`;
+      $("#btnAtualizar").onclick = atualizarApp;
+    } else if (manual) avisar("Você já está na versão mais nova.");
+  } catch (e) { if (manual) avisar("Sem conexão para verificar agora."); }
+}
+async function atualizarApp() {
+  try {
+    if ("caches" in window) { const ks = await caches.keys(); await Promise.all(ks.map((k) => caches.delete(k))); }
+    if ("serviceWorker" in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map((r) => r.unregister())); }
+  } catch (e) {}
+  location.reload();
+}
+
 // ============ diálogos próprios (sem alert/confirm/prompt) ============
 function dialogo2(html) { let d = $("#dlg2"); if (!d) { d = document.createElement("dialog"); d.id = "dlg2"; document.body.appendChild(d); } d.innerHTML = html; d.onclick = (e) => { if (e.target === d) d.close(); }; d.showModal(); return d; }
 function confirmar(msg) { return new Promise((res) => { const d = dialogo2(`<form method="dialog"><h3>${esc(msg)}</h3><div class="rodape-form"><button class="btn" value="nao">Cancelar</button><button class="btn primario" value="sim" autofocus>Confirmar</button></div></form>`); d.onclose = () => res(d.returnValue === "sim"); }); }
@@ -632,7 +681,7 @@ function salvar() {
     } catch (e) { st.textContent = "NÃO GRAVOU"; st.className = "status erro"; if (!Store.avisou) { Store.avisou = true; avisar("Não consegui salvar: " + e.message); } }
   }, 350);
 }
-function mudou() { ALERTAS = null; salvar(); render(); }
+function mudou() { ALERTAS = null; salvar(); render(); agendarBadge(); }
 
 // ============ render ============
 function render() {
@@ -804,6 +853,7 @@ function renderLancamentos() {
   </div>`;
 }
 
+let PROJ_CARTAO = null;
 function renderProjecao() {
   const meses = Array.from({ length: 12 }, (_, i) => somaMes(mesAtual, i));
   const linhas = meses.map((m) => ({ m, t: totaisMes(m) }));
@@ -816,8 +866,11 @@ function renderProjecao() {
     <h2>Próximos 12 meses</h2>
     <div class="legenda"><span><span class="dot" style="background:var(--receita)"></span>Receitas</span><span><span class="dot" style="background:var(--despesa)"></span>Despesas</span></div>
     <div class="proj">${linhas.map((r) => `<div class="col" data-tip="${esc(mesCurto(r.m))}: receitas ${R$(r.t.tr)} · despesas ${R$(r.t.td)} · resultado ${R$(r.t.resultado)}"><i style="height:${(r.t.tr / max) * 100}%;background:var(--receita)"></i><i style="height:${(r.t.td / max) * 100}%;background:var(--despesa)"></i></div>`).join("")}</div>
-    <div class="proj-x">${linhas.map((r) => `<span>${mesCurto(r.m)}</span>`).join("")}</div>
-    <table style="margin-top:14px">
+    <div class="proj-x">${linhas.map((r) => `<span><span class="ocultar-m">${mesCurto(r.m)}</span><span class="so-m">${MESES[Number(r.m.split("-")[1]) - 1]}</span></span>`).join("")}</div>
+    <div class="so-m" style="margin-top:12px"><div class="lista">${linhas.map((r) => { const res = r.t.resultado - r.t.ti; return `<div class="item clicavel" data-acao="irMes" data-mes="${r.m}">
+      <div class="txt"><div class="tit">${mesLongo(r.m)}</div><div class="meta" style="white-space:normal">receitas ${R$(r.t.tr)} · despesas ${R$(r.t.td)} · parcelas ${R$(r.t.parcelas)}</div></div>
+      <div class="dir"><div class="val ${res < 0 ? "neg" : "pos"}">${R$(res)}</div><div class="pequeno ${r.acum < 0 ? "neg" : ""}">acum. ${R$(r.acum)}</div></div></div>`; }).join("")}</div></div>
+    <table style="margin-top:14px" class="ocultar-m">
       <thead><tr><th>Mês</th><th class="num">Receitas</th><th class="num ocultar-m">Fixas</th><th class="num ocultar-m">Variáveis</th><th class="num">Parcelas</th><th class="num">Despesas</th><th class="num ocultar-m">Aportes</th><th class="num">Resultado</th><th class="num">Acumulado</th></tr></thead>
       <tbody>${linhas.map((r) => `<tr class="clicavel" data-acao="irMes" data-mes="${r.m}"><td>${mesCurto(r.m)}</td><td class="num">${R$(r.t.tr)}</td><td class="num ocultar-m">${R$(r.t.fixas)}</td><td class="num ocultar-m">${R$(r.t.variaveis)}</td><td class="num">${R$(r.t.parcelas)}</td><td class="num">${R$(r.t.td)}</td><td class="num ocultar-m">${R$(r.t.ti)}</td><td class="num ${r.t.resultado - r.t.ti < 0 ? "neg" : "pos"}">${R$(r.t.resultado - r.t.ti)}</td><td class="num ${r.acum < 0 ? "neg" : ""}">${R$(r.acum)}</td></tr>`).join("")}</tbody>
     </table>
@@ -825,7 +878,11 @@ function renderProjecao() {
   </div>
   <div class="card">
     <h2>Fatura prevista por cartão</h2>
-    <table><thead><tr><th>Cartão</th>${meses.map((m) => `<th class="num">${mesCurto(m)}</th>`).join("")}</tr></thead>
+    ${porConta.length ? `<div class="so-m">
+      <div class="chips">${porConta.map((x) => `<button class="chip ${(PROJ_CARTAO || porConta[0].c.id) === x.c.id ? "ativo" : ""}" data-acao="projCartao" data-id="${x.c.id}">${esc(x.c.nome)}</button>`).join("")}</div>
+      ${(() => { const sel = porConta.find((x) => x.c.id === (PROJ_CARTAO || porConta[0].c.id)) || porConta[0]; const mx = Math.max(1, ...sel.vals); return `<div class="lista">${meses.map((m, i) => `<div class="item"><div class="txt"><div class="tit">${mesLongo(m)}</div><div class="barra" style="margin-top:4px;max-width:200px"><i style="width:${(sel.vals[i] / mx) * 100}%;background:${corConta(sel.c)}"></i></div></div><div class="dir"><div class="val">${sel.vals[i] ? R$(sel.vals[i]) : "—"}</div></div></div>`).join("")}</div>`; })()}
+    </div>` : ""}
+    <table class="ocultar-m"><thead><tr><th>Cartão</th>${meses.map((m) => `<th class="num">${mesCurto(m)}</th>`).join("")}</tr></thead>
       <tbody>${porConta.map((x) => `<tr><td style="white-space:nowrap">${esc(x.c.nome)}</td>${x.vals.map((v) => `<td class="num">${v ? R$(v) : '<span class="pequeno">—</span>'}</td>`).join("")}</tr>`).join("")}
       <tr class="total"><td>Total</td>${meses.map((m, i) => `<td class="num">${R$(soma(porConta, (x) => x.vals[i]))}</td>`).join("")}</tr></tbody></table>
   </div>`;
@@ -915,6 +972,14 @@ function renderConfig() {
         <li>Menu ⋮ → <b>Adicionar à tela inicial</b>. Abra sempre por esse atalho: é ele que mantém os dados guardados.</li>
         <li>Se o status no topo mostrar "NÃO GRAVOU", o arquivo foi aberto de um jeito que o Chrome bloqueia (ex.: direto pelo app Arquivos). Volte ao passo 2.</li>
       </ol></details>` : ""}
+  </div>
+  <div class="card">
+    <h2>App</h2>
+    <div class="lista">
+      <div class="item"><div class="txt"><div class="tit">Versão instalada</div><div class="meta">${window.FIN_VERSAO ? new Date(window.FIN_VERSAO).toLocaleString("pt-BR") : "versão local"}</div></div><button class="btn mini" data-acao="verificarAtualizacao">Verificar atualização</button></div>
+      <div class="item"><div class="txt"><div class="tit">Número de alertas no ícone</div><div class="meta">${"setAppBadge" in navigator ? (("Notification" in window && Notification.permission === "granted") ? "ativado: mostra quantos alertas críticos e avisos existem" : "disponível; toque para ativar (o iPhone pede permissão de notificação)") : "só funciona com o app instalado na tela inicial (iOS 16.4+ ou Android)"}</div></div><button class="btn mini" data-acao="ativarBadge">Ativar</button></div>
+    </div>
+    <p class="pequeno" style="margin-top:8px">O app busca a versão nova toda vez que abre com internet. Quando houver uma, aparece uma faixa azul no topo com o botão "Atualizar agora". Não precisa excluir nem reinstalar.</p>
   </div>
   <div class="card" id="orcamento">
     <h2>Orçamento mensal por categoria <small>orçado ${R$(totOrc)} · receita ${R$(t.tr)}</small></h2>
@@ -1114,6 +1179,7 @@ function ligarEventos() {
     else if (a === "verTerceiro") { aba = "lancamentos"; filtro = { ...filtro, soTerceiros: true, terceiro: el.dataset.nome, conta: "", soMes: false, soRevisar: false }; render(); }
     else if (a === "irRevisar") { aba = "lancamentos"; filtro = { ...filtro, soRevisar: true, conta: "" }; render(); }
     else if (a === "irOrcamento") { aba = "config"; render(); setTimeout(() => $("#orcamento")?.scrollIntoView({ behavior: "smooth" }), 50); }
+    else if (a === "projCartao") { PROJ_CARTAO = id; render(); }
     else if (a === "irMes") { mesAtual = el.dataset.mes; aba = "resumo"; render(); }
     else if (a === "novaConta") formConta();
     else if (a === "editarConta") formConta(conta(id));
@@ -1126,6 +1192,8 @@ function ligarEventos() {
     else if (a === "delCat") { if (D.lancamentos.some((l) => l.categoriaId === id)) return avisar("Há lançamentos nessa categoria. Reclassifique antes."); D.categorias = D.categorias.filter((c) => c.id !== id); delete D.orcamentos[id]; mudou(); }
     else if (a === "exportar") exportar();
     else if (a === "copiarCopia") copiarCopia();
+    else if (a === "verificarAtualizacao") verificarAtualizacao(true);
+    else if (a === "ativarBadge") ativarBadge();
     else if (a === "colarCopia") colarCopia();
     else if (a === "compartilhar") compartilhar();
     else if (a === "rodarAgente") { ALERTAS = null; render(); }
@@ -1153,7 +1221,7 @@ $("#fab").onclick = () => formLancamento(novoLancamento("despesa"));
 document.addEventListener("keydown", (e) => { if (e.key === "n" && !e.ctrlKey && !$("#dlg").open && !["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName)) { e.preventDefault(); formLancamento(novoLancamento("despesa")); } });
 if (!window.FIN_ARTIFACT && "serviceWorker" in navigator && location.protocol.startsWith("http") && (true)) navigator.serviceWorker.register("./sw.js").catch(() => {});
 
-carregar().then(() => { const st = $("#status"); st.textContent = Store.modo === "local" ? "neste aparelho" : "servidor"; st.className = "status"; render(); })
+carregar().then(() => { const st = $("#status"); st.textContent = Store.modo === "local" ? "neste aparelho" : "servidor"; st.className = "status"; render(); agendarBadge(); verificarAtualizacao(false); })
   .catch((e) => { $("#status").textContent = "erro"; $("#main").innerHTML = `<div class="card">Não consegui carregar os dados: ${esc(e.message)}</div>`; });
 </script>
 </body>
