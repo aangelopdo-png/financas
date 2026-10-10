@@ -248,7 +248,7 @@
 <div class="tip" id="tip"></div>
 <dialog id="dlg"></dialog>
 
-<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-10-09T02:12:21.826Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
+<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-10-10T20:58:27.404Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
 <script>
 (function () {
 // Agente de alertas — Finanças Angelo
@@ -1077,7 +1077,7 @@ function formLancamento(l) {
   atualizaModo();
   $("[name=data]", form).addEventListener("change", atualizaFatura);
   $("[name=contaId]", form).addEventListener("change", atualizaFatura);
-  $("[data-acao=excluirNoForm]", form)?.addEventListener("click", async (e) => { if (await confirmar("Excluir este lançamento?")) { D.lancamentos = D.lancamentos.filter((x) => x.id !== e.currentTarget.dataset.id); $("#dlg").close(); mudou(); } });
+  $("[data-acao=excluirNoForm]", form)?.addEventListener("click", async (e) => { const id = e.currentTarget.dataset.id; if (await confirmar("Excluir este lançamento?")) { D.lancamentos = D.lancamentos.filter((x) => x.id !== id); $("#dlg").close(); mudou(); avisar("Lançamento excluído."); } });
 }
 function formConta(c) {
   const novo = !c; c = c || { nome: "", tipo: "cartao", final: "", vencimento: "", fechamento: "", limite: "" };
@@ -1109,7 +1109,7 @@ function formInvestimento(inv) {
       const obj = { id: inv.id || uid("I"), nome: fd.nome.trim(), instituicao: fd.instituicao.trim(), tipo: fd.tipo.trim(), objetivo: fd.objetivo.trim(), pessoa: fd.pessoa, saldo: Number(fd.saldo) || 0, atualizadoEm: new Date().toLocaleDateString("pt-BR") };
       const i = D.investimentos.findIndex((x) => x.id === obj.id); if (i >= 0) D.investimentos[i] = obj; else D.investimentos.push(obj); mudou();
     });
-  $("#dlg [data-acao=excluirInv]")?.addEventListener("click", async (e) => { if (await confirmar("Excluir ativo?")) { D.investimentos = D.investimentos.filter((i) => i.id !== e.currentTarget.dataset.id); $("#dlg").close(); mudou(); } });
+  $("#dlg [data-acao=excluirInv]")?.addEventListener("click", async (e) => { const id = e.currentTarget.dataset.id; if (await confirmar("Excluir ativo?")) { D.investimentos = D.investimentos.filter((i) => i.id !== id); $("#dlg").close(); mudou(); avisar("Ativo excluído."); } });
 }
 function formPagar(c, total) {
   abrir(`<h3>Pagar ${esc(c.nome)} · ${mesLongo(mesAtual)}</h3>
