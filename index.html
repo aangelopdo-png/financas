@@ -248,7 +248,7 @@
 <div class="tip" id="tip"></div>
 <dialog id="dlg"></dialog>
 
-<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-10-10T20:58:27.404Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
+<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-10-12T16:36:17.945Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
 <script>
 (function () {
 // Agente de alertas — Finanças Angelo
@@ -309,7 +309,20 @@ function gerarAlertas(D, hoje = new Date()) {
   const sobra = saldoIni + tr - td - ti + recebido;
 
   // ---- Inadimplência: faturas vencidas / vencendo ----
-  for (const c of D.contas) {
+  for (const c of D.contas.filter((c) => c.porCompra)) {
+    // crediário: cada compra vence no dia da compra e é paga separadamente
+    for (const l of desp.filter((l) => l.contaId === c.id)) {
+      if (l.pagos && l.pagos[mes]) continue;
+      if (!l.data) { add("info", "inadimplencia", `${c.nome}: "${l.descricao}" está sem data da compra, então não sei o vencimento.`); continue; }
+      const dia = Number(l.data.split("-")[2]);
+      const venc = new Date(hoje.getFullYear(), hoje.getMonth(), Math.min(dia, new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate()));
+      const dias = Math.round((venc - hoje) / 864e5);
+      if (dias < 0) add("critico", "inadimplencia", `${c.nome} · ${l.descricao} VENCEU há ${-dias} dia(s) e não está marcada como paga: ${R$(l.valor)}.`);
+      else if (dias === 0) add("critico", "inadimplencia", `${c.nome} · ${l.descricao} vence HOJE: ${R$(l.valor)}.`);
+      else if (dias <= REGRAS.diasAvisoVencimento) add("aviso", "inadimplencia", `${c.nome} · ${l.descricao} vence em ${dias} dia(s) (dia ${dia}): ${R$(l.valor)}.`);
+    }
+  }
+  for (const c of D.contas.filter((c) => !c.porCompra)) {
     const itens = desp.filter((l) => l.contaId === c.id);
     const total = soma(itens, (l) => l.valor);
     if (total <= 0.004 || !c.vencimento) continue;
@@ -328,7 +341,7 @@ function gerarAlertas(D, hoje = new Date()) {
   // ---- Inadimplência: limite do cartão (fatura aberta + parcelas futuras) ----
   for (const c of D.contas.filter((c) => c.tipo === "cartao" && c.limite)) {
     const pago = (D.pagamentos || []).some((p) => p.mes === mes && p.contaId === c.id);
-    const fat = pago ? 0 : soma(desp.filter((l) => l.contaId === c.id), (l) => l.valor);
+    const fat = c.porCompra ? soma(desp.filter((l) => l.contaId === c.id && !(l.pagos && l.pagos[mes])), (l) => l.valor) : (pago ? 0 : soma(desp.filter((l) => l.contaId === c.id), (l) => l.valor));
     let fut = 0;
     for (const l of D.lancamentos) {
       if (l.tipo !== "despesa" || l.contaId !== c.id || l.parcelas < 2) continue;
@@ -503,6 +516,7 @@ function mesFatura(c, dataISO) {
   if (!dataISO) return null;
   const [a, m, d] = dataISO.split("-").map(Number);
   const mes = `${a}-${String(m).padStart(2, "0")}`;
+  if (c && c.porCompra) return somaMes(mes, 1); // crediário: 1ª parcela 30 dias depois, mesmo dia
   if (!c || !c.fechamento) return mes;
   let salto = d > c.fechamento ? 1 : 0;
   if (c.vencimento && c.vencimento <= c.fechamento) salto += 1;
@@ -546,7 +560,8 @@ function pendenteTerceiros(mesBase) {
 }
 // Limite tomado = fatura em aberto do mês + todas as parcelas futuras ainda por vir
 function limiteUsado(c, mes) {
-  let usado = pagamento(mes, c.id) ? 0 : soma(itensDoMes(mes, "despesa").filter((x) => x.l.contaId === c.id), (x) => x.l.valor);
+  let usado = c.porCompra ? soma(itensDoMes(mes, "despesa").filter((x) => x.l.contaId === c.id && !pagoNoMes(x.l, mes)), (x) => x.l.valor)
+    : (pagamento(mes, c.id) ? 0 : soma(itensDoMes(mes, "despesa").filter((x) => x.l.contaId === c.id), (x) => x.l.valor));
   let futuro = 0;
   for (const l of D.lancamentos) {
     if (l.tipo !== "despesa" || l.contaId !== c.id || l.parcelas < 2) continue;
@@ -566,6 +581,21 @@ function dividaRestante(mesBase) {
   return { total, fim };
 }
 function pagamento(mes, contaId) { return D.pagamentos.find((p) => p.mes === mes && p.contaId === contaId); }
+// Crediário (vencimento por compra): cada lançamento vence no dia da compra, e é pago item a item
+function diaVenc(l, c) { return c && c.porCompra && l.data ? Number(l.data.split("-")[2]) : (c ? c.vencimento : null); }
+function pagoNoMes(l, mes) { return !!(l.pagos && l.pagos[mes]); }
+function statusItem(mes, l, c) {
+  if (pagoNoMes(l, mes)) return { cls: "pago", txt: "pago" };
+  const dia = diaVenc(l, c);
+  if (!dia) return { cls: "", txt: "em aberto" };
+  const [a, m] = mes.split("-").map(Number);
+  const venc = new Date(a, m - 1, Math.min(dia, new Date(a, m, 0).getDate())), hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  const dias = Math.round((venc - hoje) / 864e5);
+  if (dias < 0) return { cls: "atraso", txt: `venceu há ${-dias} d` };
+  if (dias === 0) return { cls: "vence", txt: "vence hoje" };
+  if (dias <= 5) return { cls: "vence", txt: `vence em ${dias} d` };
+  return { cls: "", txt: `vence dia ${dia}` };
+}
 function statusFatura(mes, c, total) {
   if (total <= 0.004) return { cls: "", txt: "sem lançamentos" };
   if (pagamento(mes, c.id)) return { cls: "pago", txt: "pago" };
@@ -704,7 +734,8 @@ function renderResumo(t) {
   const porPessoa = D.pessoas.map((p) => ({ p, total: soma(t.desp.filter((x) => (x.l.pessoa || D.pessoas[0]) === p), (x) => x.l.valor) })).filter((x) => x.total > 0);
   const terminam = t.desp.filter((x) => x.l.parcelas > 1 && x.n === x.l.parcelas);
   const alertas = [];
-  for (const pc of porConta) { const s = statusFatura(mesAtual, pc.c, pc.total); if (s.cls === "vence" || s.cls === "atraso") alertas.push(alertaHtml(s.cls === "atraso" ? "ruim" : "", "!", `<strong>${esc(pc.c.nome)}</strong> ${s.txt} · ${R$(pc.total)}`)); }
+  for (const pc of porConta.filter((p) => p.c.porCompra)) for (const x of pc.itens) { const s = statusItem(mesAtual, x.l, pc.c); if (s.cls === "vence" || s.cls === "atraso") alertas.push(alertaHtml(s.cls === "atraso" ? "ruim" : "", "!", `<strong>${esc(pc.c.nome)}</strong> · ${esc(x.l.descricao)} ${s.txt} · ${R$(x.l.valor)}`)); }
+  for (const pc of porConta.filter((p) => !p.c.porCompra)) { const s = statusFatura(mesAtual, pc.c, pc.total); if (s.cls === "vence" || s.cls === "atraso") alertas.push(alertaHtml(s.cls === "atraso" ? "ruim" : "", "!", `<strong>${esc(pc.c.nome)}</strong> ${s.txt} · ${R$(pc.total)}`)); }
   if (t.sobra < 0) alertas.push(alertaHtml("ruim", "!", `O mês fecha <strong>negativo em ${R$(-t.sobra)}</strong>. Confira receitas previstas e o saldo inicial.`));
   const estourados = porCat.filter((x) => x.orc && x.total > x.orc);
   if (estourados.length) alertas.push(alertaHtml("", "%", `Orçamento estourado: ${estourados.map((x) => `${esc(x.cat.nome)} (${R$(x.total - x.orc)} acima)`).join(", ")}.`));
@@ -758,7 +789,21 @@ function renderResumo(t) {
       <div class="card">
         <h2>Faturas e contas <small>${mesCurto(mesAtual)}</small></h2>
         <div class="lista">
-        ${porConta.map((pc) => { const s = statusFatura(mesAtual, pc.c, pc.total); const pg = pagamento(mesAtual, pc.c.id); return `
+        ${porConta.map((pc) => { if (pc.c.porCompra) {
+            const itens = [...pc.itens].sort((a, b) => (diaVenc(a.l, pc.c) || 99) - (diaVenc(b.l, pc.c) || 99));
+            const abertos = itens.filter((x) => !pagoNoMes(x.l, mesAtual)), pendente = soma(abertos, (x) => x.l.valor);
+            const pior = abertos.map((x) => statusItem(mesAtual, x.l, pc.c)).sort((a, b) => ({ atraso: 0, vence: 1, "": 2 }[a.cls] - { atraso: 0, vence: 1, "": 2 }[b.cls]))[0] || { cls: "pago", txt: "tudo pago" };
+            return `
+          <div class="item" style="flex-wrap:wrap">
+            ${avatarConta(pc.c)}
+            <div class="txt clicavel" data-acao="verConta" data-id="${pc.c.id}"><div class="tit">${esc(pc.c.nome)}</div><div class="meta">${pc.itens.length} compra(s) · vencimento por compra${pendente < pc.total - 0.004 ? " · falta " + R$(pendente) : ""}</div></div>
+            <div class="dir"><div class="val">${R$(pc.total)}</div><span class="pill ${pior.cls}">${pior.txt}</span></div>
+            <div class="lista" style="flex-basis:100%;margin:4px 0 0 50px">${itens.map((x) => { const s = statusItem(mesAtual, x.l, pc.c); const pg = pagoNoMes(x.l, mesAtual); return `
+              <div class="item" style="padding:6px 0"><div class="txt"><div class="tit" style="font-weight:500">${esc(x.l.descricao)}${x.l.parcelas > 1 ? ` <span class="pequeno">${x.n}/${x.l.parcelas}</span>` : ""}</div><div class="meta">${diaVenc(x.l, pc.c) ? "vence dia " + diaVenc(x.l, pc.c) : "sem data da compra"}</div></div>
+                <div class="dir"><div class="val" style="font-size:14px">${R$(x.l.valor)}</div><span class="pill ${s.cls}">${s.txt}</span></div>
+                <button class="btn mini ${pg ? "" : "primario"}" data-acao="pagarItem" data-id="${x.l.id}">${pg ? "desfazer" : "pagar"}</button></div>`; }).join("")}</div>
+          </div>`; }
+          const s = statusFatura(mesAtual, pc.c, pc.total); const pg = pagamento(mesAtual, pc.c.id); return `
           <div class="item">
             ${avatarConta(pc.c)}
             <div class="txt clicavel" data-acao="verConta" data-id="${pc.c.id}"><div class="tit">${esc(pc.c.nome)}${pc.c.final ? ` <span class="pequeno">•${esc(pc.c.final)}</span>` : ""}</div><div class="meta">${pc.itens.length} item(ns)${pc.c.vencimento ? " · vence dia " + pc.c.vencimento : ""}${pg && Math.abs(pg.valor - pc.total) > 0.01 ? " · pago " + R$(pg.valor) : ""}</div></div>
@@ -845,7 +890,7 @@ function renderLancamentos() {
         <div class="item clicavel" data-acao="editar" data-id="${l.id}">
           <div class="avatar" style="background:${l.tipo === "receita" ? "var(--receita)" : l.tipo === "investimento" ? "var(--invest)" : (cat?.cor || "#8a8a8a")}">${l.tipo === "receita" ? "+" : l.tipo === "investimento" ? "★" : esc(iniciais(cat?.nome || "?"))}</div>
           <div class="txt"><div class="tit">${esc(l.descricao)} ${l.revisar ? '<span class="pill rev">revisar</span>' : ""}</div>
-            <div class="meta">${l.terceiro ? `<strong style="color:var(--warn)">para ${esc(l.terceiro)}</strong> · ` : ""}${cat ? esc(cat.nome) : l.tipo}${l.pessoa && l.pessoa !== D.pessoas[0] ? " · " + esc(l.pessoa) : ""}${l.data ? " · " + l.data.split("-").reverse().join("/") : ""}${l.obs ? " · " + esc(l.obs) : ""}</div></div>
+            <div class="meta">${l.terceiro ? `<strong style="color:var(--warn)">para ${esc(l.terceiro)}</strong> · ` : ""}${cat ? esc(cat.nome) : l.tipo}${l.pessoa && l.pessoa !== D.pessoas[0] ? " · " + esc(l.pessoa) : ""}${l.data ? " · compra " + l.data.split("-").reverse().join("/") : ""}${conta(l.contaId)?.porCompra && l.data ? " · vence dia " + diaVenc(l, conta(l.contaId)) : ""}${l.obs ? " · " + esc(l.obs) : ""}</div></div>
           <div class="dir"><div class="val ${l.tipo === "receita" ? "pos" : ""}">${l.tipo === "receita" ? "+" : ""}${R$(l.valor)}</div>
             <span class="pill ${l.parcelas > 1 ? "ok" : ""}">${l.parcelas > 1 ? `${n ?? "—"}/${l.parcelas} · até ${mesCurto(mesUltimaParcela(l))}` : l.parcelas === 1 ? "à vista" : `mensal${l.mesFim ? " até " + mesCurto(l.mesFim) : ""}`}</span>
             ${l.terceiro && n !== undefined ? `<button class="btn mini ${recebidoNoMes(l, mesAtual) ? "" : "primario"}" data-acao="toggleRecebido" data-id="${l.id}" style="margin-top:4px">${recebidoNoMes(l, mesAtual) ? "✓ recebido" : "receber"}</button>` : ""}</div>
@@ -901,7 +946,7 @@ function renderContas() {
       return `<div class="item clicavel" data-acao="editarConta" data-id="${c.id}">
         ${avatarConta(c)}
         <div class="txt"><div class="tit">${esc(c.nome)}${c.final ? ` <span class="pequeno">•${esc(c.final)}</span>` : ""}</div>
-          <div class="meta">${tipos[c.tipo] || c.tipo}${c.fechamento ? " · fecha dia " + c.fechamento : ""}${c.vencimento ? " · vence dia " + c.vencimento : ""}</div>
+          <div class="meta">${tipos[c.tipo] || c.tipo}${c.porCompra ? " · vence 30 dias após cada compra" : ""}${c.fechamento ? " · fecha dia " + c.fechamento : ""}${c.vencimento ? " · vence dia " + c.vencimento : ""}</div>
           ${c.limite ? `<div class="barra" style="margin-top:6px;max-width:260px"><i style="width:${uso}%;background:${uso > 80 ? "var(--bad)" : uso > 60 ? "var(--warn)" : "var(--accent-2)"}"></i></div><div class="pequeno">limite ${R$(c.limite)} · tomado ${R$(lu.usado)} (fatura ${R$(lu.fatura)} + futuras ${R$(lu.futuro)})</div>` : c.tipo === "cartao" ? `<div class="pequeno">toque para informar o limite</div>` : ""}</div>
         <div class="dir"><div class="val ${c.limite && lu.disponivel < 0 ? "neg" : ""}">${c.limite ? R$(lu.disponivel) : R$(fat)}</div><div class="pequeno">${c.limite ? "disponível" : "fatura " + mesCurto(mesAtual)}</div></div>
       </div>`; }).join("")}</div>
@@ -1036,7 +1081,7 @@ function formLancamento(l) {
     ${l.tipo === "despesa" ? `<div class="campo"><label>Categoria</label><select name="categoriaId">${optsCat(l.categoriaId)}</select></div>
     <div class="campo"><label>Comprado para terceiro? (quem vai te devolver)</label><input name="terceiro" list="terceiros" value="${esc(l.terceiro || "")}" placeholder="deixe vazio se a compra é sua"><datalist id="terceiros">${terceirosLista().map((x) => `<option value="${esc(x)}">`).join("")}</datalist></div>` : ""}
     <div class="linha">
-      <div class="campo" data-nao="mensal"><label>Data da compra (opcional)</label><input name="data" type="date" value="${l.data || ""}"></div>
+      <div class="campo" data-nao="mensal"><label id="lblData">Data da compra (opcional)</label><input name="data" type="date" value="${l.data || ""}"></div>
       <div class="campo"><label id="lblInicio">Mês da fatura</label><input name="mesInicio" type="month" required value="${l.mesInicio}"><div class="pequeno" id="dicaFatura"></div></div>
       <div class="campo" data-so="mensal"><label>Até (opcional)</label><input name="mesFim" type="month" value="${l.mesFim || ""}"></div>
     </div>
@@ -1053,7 +1098,8 @@ function formLancamento(l) {
         parcelaInicial: modo === "parcelado" ? Math.min(parcelas, Math.max(1, Number(fd.parcelaInicial) || 1)) : 1,
         mesInicio: fd.mesInicio, mesFim: modo === "mensal" && fd.mesFim ? fd.mesFim : null, data: modo === "mensal" ? "" : (fd.data || ""),
         contaId: fd.contaId, categoriaId: l.tipo === "despesa" ? fd.categoriaId : (l.tipo === "investimento" ? "investimento" : null), pessoa: fd.pessoa, obs: fd.obs.trim(), revisar: false,
-        terceiro: (fd.terceiro || "").trim() || null, recebidos: l.recebidos || {} };
+        terceiro: (fd.terceiro || "").trim() || null, recebidos: l.recebidos || {}, pagos: l.pagos || {} };
+      if (conta(obj.contaId)?.porCompra && obj.parcelas && !obj.data) { avisar("Neste cartão a data da compra é obrigatória: ela define o vencimento."); return false; }
       if (!obj.valor || obj.valor <= 0) { avisar("Informe um valor maior que zero."); return false; }
       const i = D.lancamentos.findIndex((x) => x.id === obj.id);
       if (i >= 0) D.lancamentos[i] = obj; else D.lancamentos.push(obj);
@@ -1069,12 +1115,16 @@ function formLancamento(l) {
   };
   const atualizaFatura = () => {
     const data = $("[name=data]", form).value, c = conta($("[name=contaId]", form).value), dica = $("#dicaFatura", form);
-    if (!data) { dica.textContent = ""; return; }
-    const mf = mesFatura(c, data); $("[name=mesInicio]", form).value = mf;
-    dica.textContent = c?.fechamento ? `fecha dia ${c.fechamento}: cai na fatura de ${mesCurto(mf)}` : "sem dia de fechamento cadastrado: usa o mês da compra";
+    const inData = $("[name=data]", form), lbl = $("#lblData", form);
+    const porCompra = !!(c && c.porCompra && $("[name=modo]", form).value !== "mensal");
+    inData.required = porCompra; lbl.textContent = porCompra ? "Data da compra (define o vencimento)" : "Data da compra (opcional)";
+    if (!data) { dica.textContent = porCompra ? "neste cartão cada compra vence 30 dias depois, no mesmo dia" : ""; return; }
+    const mf = mesFatura(c, data); if (porCompra || c?.fechamento) $("[name=mesInicio]", form).value = mf;
+    if (porCompra) { const d = data.split("-")[2]; dica.textContent = `vence todo dia ${Number(d)}: 1ª parcela em ${d}/${mesCurto(mf)}`; }
+    else dica.textContent = c?.fechamento ? `fecha dia ${c.fechamento}: cai na fatura de ${mesCurto(mf)}` : "sem dia de fechamento cadastrado: usa o mês da compra";
   };
-  $("#seg", form).addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; $("[name=modo]", form).value = b.dataset.modo; atualizaModo(); });
-  atualizaModo();
+  $("#seg", form).addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; $("[name=modo]", form).value = b.dataset.modo; atualizaModo(); atualizaFatura(); });
+  atualizaModo(); atualizaFatura();
   $("[name=data]", form).addEventListener("change", atualizaFatura);
   $("[name=contaId]", form).addEventListener("change", atualizaFatura);
   $("[data-acao=excluirNoForm]", form)?.addEventListener("click", async (e) => { const id = e.currentTarget.dataset.id; if (await confirmar("Excluir este lançamento?")) { D.lancamentos = D.lancamentos.filter((x) => x.id !== id); $("#dlg").close(); mudou(); avisar("Lançamento excluído."); } });
@@ -1089,10 +1139,12 @@ function formConta(c) {
       <div class="campo"><label>Dia de fechamento</label><input name="fechamento" type="number" min="1" max="31" inputmode="numeric" value="${c.fechamento || ""}"></div>
       <div class="campo"><label>Dia de vencimento</label><input name="vencimento" type="number" min="1" max="31" inputmode="numeric" value="${c.vencimento || ""}"></div>
     </div>
+    <div class="campo"><label class="chk"><input type="checkbox" name="porCompra" ${c.porCompra ? "checked" : ""}> Vencimento conforme a data da compra (crediário: cada compra vence 30 dias depois, no mesmo dia, e as parcelas seguem esse dia)</label>
+      <div class="pequeno" style="margin-top:4px">Com isso marcado, fechamento e vencimento fixos deixam de valer e cada compra é paga separadamente.</div></div>
     <div class="campo"><label>Limite (R$)</label><input name="limite" type="number" step="0.01" inputmode="decimal" value="${c.limite || ""}"></div>
     <div class="rodape-form">${!novo ? `<button type="button" class="btn perigo esq" data-acao="excluirConta" data-id="${c.id}">Excluir</button>` : ""}<button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn primario" type="submit">Salvar</button></div>`, (f) => {
       const fd = Object.fromEntries(new FormData(f));
-      const obj = { id: c.id || uid("C"), nome: fd.nome.trim(), tipo: fd.tipo, final: fd.final.trim(), fechamento: Number(fd.fechamento) || null, vencimento: Number(fd.vencimento) || null, limite: Number(fd.limite) || null };
+      const obj = { id: c.id || uid("C"), nome: fd.nome.trim(), tipo: fd.tipo, final: fd.final.trim(), fechamento: fd.porCompra ? null : (Number(fd.fechamento) || null), vencimento: fd.porCompra ? null : (Number(fd.vencimento) || null), limite: Number(fd.limite) || null, porCompra: !!fd.porCompra };
       const i = D.contas.findIndex((x) => x.id === obj.id); if (i >= 0) D.contas[i] = obj; else D.contas.push(obj); mudou();
     });
   $("#dlg [data-acao=excluirConta]")?.addEventListener("click", async (e) => { const id = e.currentTarget.dataset.id; const usados = D.lancamentos.filter((l) => l.contaId === id).length; if (usados) return avisar(`Essa conta tem ${usados} lançamento(s). Mova ou exclua antes.`); if (await confirmar("Excluir conta?")) { D.contas = D.contas.filter((x) => x.id !== id); $("#dlg").close(); mudou(); } });
@@ -1171,6 +1223,7 @@ function ligarEventos() {
     if (a === "novo") formLancamento(novoLancamento(el.dataset.tipo));
     else if (a === "editar") formLancamento(D.lancamentos.find((l) => l.id === id));
     else if (a === "pagar") formPagar(conta(id), Number(el.dataset.total));
+    else if (a === "pagarItem") { const l = D.lancamentos.find((x) => x.id === id); l.pagos ||= {}; if (l.pagos[mesAtual]) delete l.pagos[mesAtual]; else l.pagos[mesAtual] = new Date().toISOString().slice(0, 10); mudou(); }
     else if (a === "desfazerPago") { D.pagamentos = D.pagamentos.filter((p) => !(p.mes === mesAtual && p.contaId === id)); mudou(); }
     else if (a === "saldo") formSaldo();
     else if (a === "verConta") { aba = "lancamentos"; filtro = { ...filtro, conta: id, soMes: true, soRevisar: false }; render(); }
