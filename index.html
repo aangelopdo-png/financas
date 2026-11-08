@@ -178,6 +178,20 @@
   .proj .col i { flex: 1; border-radius: 4px 4px 0 0; min-height: 3px; display: block; opacity: .95; }
   .proj-x { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; font-size: 11px; color: var(--muted); text-align: center; margin-top: 6px; }
   .so-m { display: none; }
+  /* aba A pagar: quinzenas, faturas e pessoas expansíveis */
+  .sec-tit { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 16px 0 4px; color: var(--text-2); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  .sec-tit:first-child { margin-top: 0; }
+  .sec-tit small { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--muted); }
+  details.fat { border-bottom: 1px solid var(--border); }
+  details.fat:last-of-type { border-bottom: 0; }
+  details.fat > summary { list-style: none; cursor: pointer; border-bottom: 0; }
+  details.fat > summary::-webkit-details-marker { display: none; }
+  details.fat .seta { display: inline-block; margin-right: 6px; color: var(--muted); transition: transform .15s; }
+  details.fat[open] .seta { transform: rotate(90deg); }
+  details.fat .sub-lista { margin: 0 0 10px 50px; padding-left: 10px; border-left: 2px solid var(--border); }
+  .pchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+  .total-linha { display: flex; justify-content: space-between; padding: 12px 4px 0; font-weight: 700; border-top: 2px solid var(--border); margin-top: 10px; }
+  .hero .mini small { display: block; font-size: 11px; opacity: .8; margin-top: 2px; }
   .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
   .chip { border: 1px solid var(--border); background: var(--surface-2); border-radius: 999px; padding: 5px 11px; font-size: 13px; cursor: pointer; }
   .chip.ativo { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
@@ -225,6 +239,7 @@
     td, th { overflow-wrap: anywhere; }
     .barra { min-width: 50px; }
     .acoes .btn.mini { padding: 3px 8px; }
+    details.fat .sub-lista { margin-left: 0; padding-left: 8px; }
     dialog { width: 100%; max-width: none; margin: auto 0 0; border-radius: 22px 22px 0 0; max-height: 94vh; }
     dialog form { padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); }
   }
@@ -248,7 +263,7 @@
 <div class="tip" id="tip"></div>
 <dialog id="dlg"></dialog>
 
-<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-10-12T16:36:17.945Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
+<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-11-08T19:02:20.423Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
 <script>
 (function () {
 // Agente de alertas — Finanças Angelo
@@ -487,8 +502,9 @@ const I = {
   agente: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>',
   config: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>',
   mais: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  pagar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>',
 };
-const ABAS = [["resumo", "Resumo", I.resumo], ["lancamentos", "Lançamentos", I.lanc], ["projecao", "Projeção", I.proj], ["contas", "Cartões", I.cartao], ["investimentos", "Investir", I.invest], ["agente", "Agente", I.agente], ["config", "Ajustes", I.config]];
+const ABAS = [["resumo", "Resumo", I.resumo], ["apagar", "A pagar", I.pagar], ["lancamentos", "Lançamentos", I.lanc], ["projecao", "Projeção", I.proj], ["contas", "Cartões", I.cartao], ["investimentos", "Investir", I.invest], ["agente", "Agente", I.agente], ["config", "Ajustes", I.config]];
 
 // ============ estado ============
 let D = null, mesAtual = hojeMes(), aba = "resumo", salvarTimer = null, ALERTAS = null;
@@ -718,7 +734,7 @@ function render() {
   $("#mesLabel").textContent = mesLongo(mesAtual);
   $("#nav").innerHTML = ABAS.map(([k, nome, ic]) => `<button data-aba="${k}" class="${aba === k ? "ativo" : ""}">${ic}<span>${nome}</span></button>`).join("");
   const t = totaisMes(mesAtual);
-  const fn = { resumo: renderResumo, lancamentos: renderLancamentos, projecao: renderProjecao, contas: renderContas, investimentos: renderInvestimentos, agente: renderAgente, config: renderConfig }[aba];
+  const fn = { resumo: renderResumo, apagar: renderAPagar, lancamentos: renderLancamentos, projecao: renderProjecao, contas: renderContas, investimentos: renderInvestimentos, agente: renderAgente, config: renderConfig }[aba];
   $("#main").innerHTML = fn(t);
   ligarEventos();
 }
@@ -849,13 +865,126 @@ function renderResumo(t) {
         <p class="pequeno" style="margin-top:8px">Marque "para terceiro" no lançamento. O valor entra na fatura, mas sai do seu gasto próprio e fica como a receber até você marcar como recebido.</p>
       </div>` : ""}
       <div class="card">
-        <h2>Por pessoa</h2>
-        ${porPessoa.length ? `<div class="lista">${porPessoa.map((x) => `<div class="item"><div class="avatar" style="background:var(--accent)">${esc(iniciais(x.p))}</div><div class="txt"><div class="tit">${esc(x.p)}</div><div class="meta">${pct(x.total, t.td)} das despesas</div></div><div class="dir"><div class="val">${R$(x.total)}</div></div></div>`).join("")}</div>` : `<div class="vazio">Nada atribuído a pessoas.</div>`}
+        <h2>Por pessoa <span class="acoes"><button class="btn mini" data-acao="verPessoa" data-nome="">detalhar</button></span></h2>
+        ${porPessoa.length ? `<div class="lista">${porPessoa.map((x) => `<div class="item clicavel" data-acao="verPessoa" data-nome="${esc(x.p)}"><div class="avatar" style="background:var(--accent)">${esc(iniciais(x.p))}</div><div class="txt"><div class="tit">${esc(x.p)}</div><div class="meta">${pct(x.total, t.td)} das despesas · toque para ver item a item</div></div><div class="dir"><div class="val">${R$(x.total)}</div></div></div>`).join("")}</div>` : `<div class="vazio">Nada atribuído a pessoas.</div>`}
       </div>
       <div class="card">
         <h2>Receitas previstas <span class="acoes"><button class="btn mini" data-acao="novo" data-tipo="receita">${I.mais} receita</button></span></h2>
         ${t.rec.length ? `<div class="lista">${t.rec.map((x) => `<div class="item clicavel" data-acao="editar" data-id="${x.l.id}"><div class="txt"><div class="tit">${esc(x.l.descricao)}</div><div class="meta">${x.l.parcelas ? "uma vez" : "mensal"}</div></div><div class="dir"><div class="val pos">+${R$(x.l.valor)}</div></div></div>`).join("")}</div>` : `<div class="vazio">Nenhuma receita lançada.</div>`}
       </div>
+    </div>
+  </div>`;
+}
+
+// ============ A pagar: total do mês, por quinzena, por pessoa ============
+let fPag = { conta: "", cat: "", pessoa: "", nat: "", quinz: "", sit: "", texto: "" };
+const PAG_ABERTOS = new Set();
+const QUINZ_NOME = { 1: "1ª quinzena", 2: "2ª quinzena", 0: "Sem dia de vencimento" };
+function quinzenaDe(dia) { return dia == null ? 0 : dia <= 15 ? 1 : 2; }
+// Cada despesa do mês com cartão, dia de vencimento, quinzena, se já foi paga e a pessoa
+function itensAPagar(mes) {
+  return itensDoMes(mes, "despesa").map((x) => {
+    const c = conta(x.l.contaId), dia = diaVenc(x.l, c);
+    const pago = c && c.porCompra ? pagoNoMes(x.l, mes) : !!(c && pagamento(mes, c.id));
+    return { l: x.l, n: x.n, c, dia, q: quinzenaDe(dia), pago, pessoa: x.l.pessoa || D.pessoas[0] || "Sem pessoa" };
+  });
+}
+function statusPag(x) {
+  if (!x.c) return { cls: "", txt: "sem conta" };
+  if (x.c.porCompra) return statusItem(mesAtual, x.l, x.c);
+  return statusFatura(mesAtual, x.c, x.l.valor);
+}
+function linhaPag(x, comConta) {
+  const cat = categoria(x.l.categoriaId), s = statusPag(x);
+  const meta = [comConta && x.c ? x.c.nome : null, cat ? cat.nome : null, comConta ? null : x.pessoa, x.l.terceiro ? `para ${x.l.terceiro}` : null, x.dia ? `vence dia ${x.dia}` : "sem dia"].filter(Boolean).map(esc).join(" · ");
+  return `<div class="item clicavel" data-acao="editar" data-id="${x.l.id}">
+    <div class="avatar" style="background:${cat?.cor || "#8a8a8a"}">${esc(iniciais(cat?.nome || "?"))}</div>
+    <div class="txt"><div class="tit">${esc(x.l.descricao)}${x.l.parcelas > 1 ? ` <span class="pequeno">${x.n}/${x.l.parcelas}</span>` : ""}</div><div class="meta">${meta}</div></div>
+    <div class="dir"><div class="val">${R$(x.l.valor)}</div><span class="pill ${s.cls}">${s.txt}</span>${x.c?.porCompra ? `<button class="btn mini ${x.pago ? "" : "primario"}" data-acao="pagarItem" data-id="${x.l.id}" style="margin-top:4px">${x.pago ? "desfazer" : "pagar"}</button>` : ""}</div>
+  </div>`;
+}
+function renderAPagar() {
+  const todos = itensAPagar(mesAtual);
+  const lista = todos.filter((x) => (!fPag.conta || x.l.contaId === fPag.conta) && (!fPag.cat || x.l.categoriaId === fPag.cat) && (!fPag.pessoa || x.pessoa === fPag.pessoa) && (!fPag.nat || natureza(x.l) === fPag.nat) && (fPag.quinz === "" || String(x.q) === fPag.quinz) && (!fPag.sit || (fPag.sit === "aberto" ? !x.pago : x.pago)) && (!fPag.texto || (x.l.descricao + " " + (x.l.obs || "") + " " + (x.l.terceiro || "")).toLowerCase().includes(fPag.texto.toLowerCase())));
+  const filtrado = Object.values(fPag).some(Boolean);
+  const v = (arr) => soma(arr, (x) => x.l.valor);
+  const total = v(lista), falta = v(lista.filter((x) => !x.pago)), pago = total - falta, terc = v(lista.filter((x) => x.l.terceiro));
+  const porQ = (q) => { const it = lista.filter((x) => x.q === q); return { it, total: v(it), falta: v(it.filter((x) => !x.pago)) }; };
+  const Q = { 1: porQ(1), 2: porQ(2), 0: porQ(0) };
+  const opt = (arr, val, f) => arr.map((x) => `<option value="${esc(f ? x.id : x)}" ${(f ? x.id : x) === val ? "selected" : ""}>${esc(f ? x.nome : x)}</option>`).join("");
+  const pessoas = [...new Set([...D.pessoas, ...todos.map((x) => x.pessoa)])];
+  const [anoM, mesM] = mesAtual.split("-").map(Number), ultimoDia = new Date(anoM, mesM, 0).getDate();
+  const fatTotal = (c) => v(todos.filter((x) => x.l.contaId === c.id));
+  const miniQ = (q, rot) => `<div><span>${rot}</span><b>${R$(Q[q].total)}</b><small>${Q[q].falta > 0.004 ? "falta " + R$(Q[q].falta) : Q[q].total > 0.004 ? "tudo pago" : "nada"}</small></div>`;
+  const detalhe = (k) => `<details class="fat" data-k="${esc(k)}" ${PAG_ABERTOS.has(k) ? "open" : ""}>`;
+  const ordem = { atraso: 0, vence: 1, "": 2, pago: 3 };
+  // bloco de uma quinzena: faturas/contas agrupadas, cada uma abre item a item
+  const blocoQ = (q) => {
+    const { it, total: totQ, falta: faltaQ } = Q[q]; if (!it.length) return "";
+    const grupos = [];
+    for (const x of it) { let g = grupos.find((g) => g.k === x.l.contaId); if (!g) { g = { k: x.l.contaId, c: x.c, itens: [] }; grupos.push(g); } g.itens.push(x); }
+    const diaMin = (g) => Math.min(...g.itens.map((x) => x.dia || 99));
+    grupos.sort((a, b) => diaMin(a) - diaMin(b) || (a.c?.nome || "").localeCompare(b.c?.nome || ""));
+    return `<div class="sec-tit"><span>${QUINZ_NOME[q]}${q === 1 ? " · vence do dia 1 ao 15" : q === 2 ? ` · vence do dia 16 ao ${ultimoDia}` : ""}</span><span>${R$(totQ)}${faltaQ > 0.004 && faltaQ < totQ - 0.004 ? ` <small>falta ${R$(faltaQ)}</small>` : ""}</span></div>
+    ${grupos.map((g) => {
+      g.itens.sort((a, b) => (a.dia || 99) - (b.dia || 99) || b.l.valor - a.l.valor);
+      const tot = v(g.itens), ab = g.itens.filter((x) => !x.pago), faltaG = v(ab), inteira = g.c ? fatTotal(g.c) : tot;
+      const s = !g.c ? { cls: "", txt: "sem conta" } : g.c.porCompra ? (ab.map((x) => statusItem(mesAtual, x.l, g.c)).sort((a, b) => ordem[a.cls] - ordem[b.cls])[0] || { cls: "pago", txt: "tudo pago" }) : statusFatura(mesAtual, g.c, tot);
+      const dias = [...new Set(g.itens.map((x) => x.dia).filter(Boolean))].sort((a, b) => a - b);
+      const pessoasG = [...new Set(g.itens.map((x) => x.pessoa))];
+      const pg = g.c && !g.c.porCompra ? pagamento(mesAtual, g.c.id) : null;
+      return `${detalhe(`q${q}:${g.k}`)}
+        <summary class="item">${g.c ? avatarConta(g.c) : `<div class="avatar" style="background:#8a8a8a">?</div>`}
+          <div class="txt"><div class="tit"><span class="seta">›</span>${esc(g.c?.nome || "Sem conta")}${g.c?.final ? ` <span class="pequeno">•${esc(g.c.final)}</span>` : ""}</div><div class="meta">${g.itens.length} item(ns)${dias.length ? " · vence dia " + dias.join(", ") : ""} · ${pessoasG.map(esc).join(", ")}${faltaG > 0.004 && faltaG < tot - 0.004 ? " · falta " + R$(faltaG) : ""}${inteira > tot + 0.004 ? " · fatura inteira " + R$(inteira) : ""}</div></div>
+          <div class="dir"><div class="val">${R$(tot)}</div><span class="pill ${s.cls}">${s.txt}</span>${g.c && !g.c.porCompra && tot > 0.004 ? (pg ? `<button class="btn mini" data-acao="desfazerPago" data-id="${g.c.id}" style="margin-top:4px">desfazer</button>` : `<button class="btn mini primario" data-acao="pagar" data-id="${g.c.id}" data-total="${inteira}" style="margin-top:4px">pagar fatura</button>`) : ""}</div>
+        </summary>
+        <div class="sub-lista lista">${g.itens.map((x) => linhaPag(x, false)).join("")}</div>
+      </details>`;
+    }).join("")}`;
+  };
+  // por pessoa: total, quinzenas, cartões e item a item
+  const blocoPessoa = pessoas.map((p) => {
+    const it = lista.filter((x) => x.pessoa === p).sort((a, b) => (a.dia || 99) - (b.dia || 99) || b.l.valor - a.l.valor); if (!it.length) return "";
+    const tot = v(it), fal = v(it.filter((x) => !x.pago)), q1 = v(it.filter((x) => x.q === 1)), q2 = v(it.filter((x) => x.q === 2)), q0 = v(it.filter((x) => x.q === 0));
+    const porConta = []; for (const x of it) { let g = porConta.find((g) => g.k === x.l.contaId); if (!g) { g = { k: x.l.contaId, c: x.c, total: 0 }; porConta.push(g); } g.total += x.l.valor; }
+    porConta.sort((a, b) => b.total - a.total);
+    return `${detalhe("p:" + p)}
+      <summary class="item"><div class="avatar" style="background:var(--accent)">${esc(iniciais(p))}</div>
+        <div class="txt"><div class="tit"><span class="seta">›</span>${esc(p)}</div><div class="meta">${it.length} item(ns) · ${pct(tot, total)} do total · 1ª quinz. ${R$(q1)} · 2ª quinz. ${R$(q2)}${q0 > 0.004 ? " · sem dia " + R$(q0) : ""}</div></div>
+        <div class="dir"><div class="val">${R$(tot)}</div><span class="pill ${fal > 0.004 ? "" : "pago"}">${fal > 0.004 ? "falta " + R$(fal) : "tudo pago"}</span></div>
+      </summary>
+      <div class="sub-lista"><div class="pchips">${porConta.map((g) => `<span class="pill"><span class="dot" style="background:${g.c ? corConta(g.c) : "#8a8a8a"}"></span>${esc(g.c?.nome || "Sem conta")} ${R$(g.total)}</span>`).join("")}</div><div class="lista">${it.map((x) => linhaPag(x, true)).join("")}</div></div>
+    </details>`;
+  }).join("");
+  return `
+  <div class="hero">
+    <div class="rot">A pagar · ${mesLongo(mesAtual)}${filtrado ? " · com filtros" : ""}</div>
+    <div class="big">${R$(total)}</div>
+    <div class="sub">${falta > 0.004 ? `falta pagar <b>${R$(falta)}</b>` : total > 0.004 ? "tudo pago" : "nada lançado"}${pago > 0.004 ? ` · já pago ${R$(pago)}` : ""} · ${lista.length} item(ns)${terc > 0.004 ? ` · ${R$(terc)} de terceiros (voltam para você)` : ""}</div>
+    <div class="mini">${miniQ(1, "1ª quinzena · dias 1 a 15")}${miniQ(2, `2ª quinzena · dias 16 a ${ultimoDia}`)}${miniQ(0, "Sem dia de vencimento")}</div>
+  </div>
+  <div class="card">
+    <div class="filtros">
+      <input id="fpTexto" placeholder="buscar…" value="${esc(fPag.texto)}">
+      <select id="fpQuinz"><option value="">as duas quinzenas</option><option value="1" ${fPag.quinz === "1" ? "selected" : ""}>1ª quinzena (1 a 15)</option><option value="2" ${fPag.quinz === "2" ? "selected" : ""}>2ª quinzena (16 a ${ultimoDia})</option><option value="0" ${fPag.quinz === "0" ? "selected" : ""}>sem dia de vencimento</option></select>
+      <select id="fpSit"><option value="">pago e em aberto</option><option value="aberto" ${fPag.sit === "aberto" ? "selected" : ""}>só o que falta pagar</option><option value="pago" ${fPag.sit === "pago" ? "selected" : ""}>só o já pago</option></select>
+      <select id="fpPessoa"><option value="">todas as pessoas</option>${opt(pessoas, fPag.pessoa)}</select>
+      <select id="fpConta"><option value="">todos os cartões/contas</option>${opt(D.contas, fPag.conta, true)}</select>
+      <select id="fpCat"><option value="">todas as categorias</option>${opt(D.categorias, fPag.cat, true)}</select>
+      <select id="fpNat"><option value="">fixa / variável / parcelada</option>${Object.entries(NATUREZA).map(([k, n]) => `<option value="${k}" ${fPag.nat === k ? "selected" : ""}>${n}</option>`).join("")}</select>
+      ${filtrado ? `<button class="btn mini" data-acao="pagLimpar">limpar filtros</button>` : ""}
+    </div>
+  </div>
+  <div class="duas">
+    <div class="card">
+      <h2>Por quinzena <small>pelo dia do vencimento</small><span class="acoes"><button class="btn mini" data-acao="pagAbrir" data-v="1">abrir tudo</button><button class="btn mini" data-acao="pagAbrir" data-v="0">fechar</button></span></h2>
+      ${lista.length ? blocoQ(1) + blocoQ(2) + blocoQ(0) : `<div class="vazio">Nada a pagar com esses filtros.</div>`}
+      <div class="total-linha"><span>Total do mês${filtrado ? " (filtrado)" : ""}</span><span>${R$(total)}</span></div>
+    </div>
+    <div class="card">
+      <h2>Por pessoa <small>quem gera cada gasto</small></h2>
+      ${lista.length ? `<div class="lista">${blocoPessoa}</div>` : `<div class="vazio">Nada atribuído.</div>`}
+      <p class="pequeno" style="margin-top:8px">Toque na pessoa ou na fatura para ver item a item. "Para terceiro" é compra no seu cartão que alguém vai te devolver: entra no total a pagar, mas não é gasto seu.</p>
     </div>
   </div>`;
 }
@@ -1231,6 +1360,9 @@ function ligarEventos() {
     else if (a === "receberTudo") { for (const x of itensDoMes(mesAtual, "despesa")) if (x.l.terceiro === el.dataset.nome) { x.l.recebidos ||= {}; x.l.recebidos[mesAtual] = new Date().toISOString().slice(0, 10); } mudou(); }
     else if (a === "verTerceiro") { aba = "lancamentos"; filtro = { ...filtro, soTerceiros: true, terceiro: el.dataset.nome, conta: "", soMes: false, soRevisar: false }; render(); }
     else if (a === "irRevisar") { aba = "lancamentos"; filtro = { ...filtro, soRevisar: true, conta: "" }; render(); }
+    else if (a === "verPessoa") { aba = "apagar"; fPag = { ...fPag, pessoa: el.dataset.nome || "" }; if (el.dataset.nome) PAG_ABERTOS.add("p:" + el.dataset.nome); render(); window.scrollTo(0, 0); }
+    else if (a === "pagLimpar") { fPag = { conta: "", cat: "", pessoa: "", nat: "", quinz: "", sit: "", texto: "" }; render(); }
+    else if (a === "pagAbrir") { if (el.dataset.v === "1") main.querySelectorAll("details[data-k]").forEach((d) => PAG_ABERTOS.add(d.dataset.k)); else PAG_ABERTOS.clear(); render(); }
     else if (a === "irOrcamento") { aba = "config"; render(); setTimeout(() => $("#orcamento")?.scrollIntoView({ behavior: "smooth" }), 50); }
     else if (a === "projCartao") { PROJ_CARTAO = id; render(); }
     else if (a === "irMes") { mesAtual = el.dataset.mes; aba = "resumo"; render(); }
@@ -1259,10 +1391,17 @@ function ligarEventos() {
     if (id === "fConta") filtro.conta = e.target.value; else if (id === "fCat") filtro.cat = e.target.value; else if (id === "fPessoa") filtro.pessoa = e.target.value;
     else if (id === "fNat") filtro.nat = e.target.value; else if (id === "fSoMes") filtro.soMes = e.target.checked; else if (id === "fSoRevisar") filtro.soRevisar = e.target.checked; else if (id === "fSoTerceiros") { filtro.soTerceiros = e.target.checked; if (!e.target.checked) filtro.terceiro = ""; }
     else if (id === "importar") { if (e.target.files[0]) importar(e.target.files[0]); return; }
+    else if (id === "fpConta") fPag.conta = e.target.value; else if (id === "fpCat") fPag.cat = e.target.value; else if (id === "fpPessoa") fPag.pessoa = e.target.value;
+    else if (id === "fpNat") fPag.nat = e.target.value; else if (id === "fpQuinz") fPag.quinz = e.target.value; else if (id === "fpSit") fPag.sit = e.target.value;
     else return;
     render();
   };
-  main.oninput = (e) => { if (e.target.id === "fTexto") { filtro.texto = e.target.value; const pos = e.target.selectionStart; render(); const el = $("#fTexto"); el.focus(); el.setSelectionRange(pos, pos); } };
+  main.oninput = (e) => {
+    if (e.target.id === "fTexto") { filtro.texto = e.target.value; const pos = e.target.selectionStart; render(); const el = $("#fTexto"); el.focus(); el.setSelectionRange(pos, pos); }
+    else if (e.target.id === "fpTexto") { fPag.texto = e.target.value; const pos = e.target.selectionStart; render(); const el = $("#fpTexto"); el.focus(); el.setSelectionRange(pos, pos); }
+  };
+  // lembra quais faturas/pessoas estão abertas na aba A pagar entre uma renderização e outra
+  main.querySelectorAll("details[data-k]").forEach((d) => d.addEventListener("toggle", () => { if (d.open) PAG_ABERTOS.add(d.dataset.k); else PAG_ABERTOS.delete(d.dataset.k); }));
   main.onmousemove = (e) => { const col = e.target.closest("[data-tip]"), tip = $("#tip"); if (!col) { tip.style.display = "none"; return; } tip.textContent = col.dataset.tip; tip.style.display = "block"; tip.style.left = Math.min(window.innerWidth - tip.offsetWidth - 8, e.clientX + 12) + "px"; tip.style.top = (e.clientY - 36) + "px"; };
   main.onmouseleave = () => ($("#tip").style.display = "none");
 }
