@@ -220,8 +220,10 @@
   .imp-top input { padding: 7px 10px; flex: 1; min-width: 0; }
   .imp-top .val { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .imp-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 5px 0; }
-  .imp-sel { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  .imp-sel select { padding: 6px 8px; font-size: 14px; }
+  .imp-sel { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .imp-sel select, .imp-sel input { padding: 6px 8px; font-size: 14px; }
+  .imp-sel > * { min-width: 0; }
+  .imp-lista { overflow-x: hidden; }
   button.pill { cursor: pointer; border: 1px dashed var(--border); background: transparent; }
   .pill-x { border: 0; background: transparent; color: inherit; padding: 0 0 0 2px; cursor: pointer; font-size: 11px; line-height: 1; }
   /* relatório do mês */
@@ -315,7 +317,7 @@
 <input type="file" id="arqExtrato" accept=".csv,.ofx,.qfx,.txt,text/csv,text/plain,application/x-ofx" style="display:none">
 <div id="relPrint"></div>
 
-<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-11-08T19:33:05.963Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
+<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-11-08T19:48:20.049Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
 <script>
 (function () {
 // Agente de alertas — Finanças Angelo
@@ -1527,7 +1529,7 @@ function acharParcela(desc) {
 }
 function prepararLinhaImport(b) {
   const desc = String(b.desc || "").replace(/\s+/g, " ").trim() || "Sem descrição";
-  return { data: b.data, descOrig: desc, descricao: desc, bruto: b.valor, valor: Math.abs(b.valor), parcelas: 1, parcelaInicial: 1, parc: acharParcela(desc), parcOff: false, editada: false, fitid: b.fitid || "", categoriaId: null, pessoa: D.pessoas[0], incluir: true, saldo: /\bsaldo\b/i.test(desc) };
+  return { data: b.data, descOrig: desc, descricao: desc, bruto: b.valor, valor: Math.abs(b.valor), parcelas: 1, parcelaInicial: 1, parc: acharParcela(desc), parcOff: false, editada: false, fitid: b.fitid || "", categoriaId: null, pessoa: D.pessoas[0], terceiro: "", incluir: true, saldo: /\bsaldo\b/i.test(desc) };
 }
 function recalcImport() {
   const c = conta(IMP.contaId), cartao = !c || c.tipo === "cartao";
@@ -1571,14 +1573,15 @@ function linhaImportHtml(l, i) {
     <div class="imp-corpo">
       <div class="imp-top"><input data-i="${i}" data-k="descricao" value="${esc(l.descricao)}" ${l.tipo === "ignorar" ? "disabled" : ""}><div class="val ${l.tipo === "receita" ? "pos" : ""}">${l.tipo === "receita" ? "+" : ""}${R$(l.valor)}</div></div>
       <div class="imp-meta"><span class="pequeno">${l.data.split("-").reverse().join("/")}${l.tipo !== "ignorar" ? " · " + (l.tipo === "receita" ? "mês " : "fatura ") + mesCurto(mf) : ""}</span>${pills.join("")}</div>
-      ${l.tipo === "despesa" ? `<div class="imp-sel"><select data-i="${i}" data-k="categoriaId">${optsCat(l.categoriaId)}</select><select data-i="${i}" data-k="pessoa">${opts(D.pessoas, l.pessoa)}</select></div>` : ""}
+      ${l.tipo === "despesa" ? `<div class="imp-sel"><select data-i="${i}" data-k="categoriaId">${optsCat(l.categoriaId)}</select><select data-i="${i}" data-k="pessoa">${opts(D.pessoas, l.pessoa)}</select><input data-i="${i}" data-k="terceiro" list="impTerceiros" value="${esc(l.terceiro || "")}" placeholder="para terceiro? (quem devolve)"></div>` : ""}
     </div></div>`;
 }
 function resumoImportHtml() {
   const sel = IMP.linhas.filter((l) => l.incluir && l.tipo !== "ignorar");
   const desp = soma(sel.filter((l) => l.tipo === "despesa"), (l) => l.valor), rec = soma(sel.filter((l) => l.tipo === "receita"), (l) => l.valor);
   const dup = IMP.linhas.filter((l) => l.dup).length, ign = IMP.linhas.filter((l) => l.tipo === "ignorar").length;
-  return `<strong>${sel.length} de ${IMP.linhas.length}</strong>&nbsp;linhas selecionadas · despesas ${R$(desp)}${rec > 0.004 ? " · receitas " + R$(rec) : ""}${dup ? ` · ${dup} já lançada(s), desmarcadas` : ""}${ign ? ` · ${ign} crédito(s)/estorno(s) ignorados` : ""}`;
+  const terc = soma(sel.filter((l) => l.tipo === "despesa" && (l.terceiro || "").trim()), (l) => l.valor);
+  return `<strong>${sel.length} de ${IMP.linhas.length}</strong>&nbsp;linhas selecionadas · despesas ${R$(desp)}${terc > 0.004 ? ` (${R$(terc)} para terceiros)` : ""}${rec > 0.004 ? " · receitas " + R$(rec) : ""}${dup ? ` · ${dup} já lançada(s), desmarcadas` : ""}${ign ? ` · ${ign} crédito(s)/estorno(s) ignorados` : ""}`;
 }
 function abrirImport() {
   const form = abrir(`<h3>Importar extrato <small class="pequeno">${esc(IMP.arquivo)}</small></h3>
@@ -1589,11 +1592,13 @@ function abrirImport() {
     <div class="banner" id="impResumo" style="display:block">${resumoImportHtml()}</div>
     <div class="chips"><button type="button" class="chip" data-imp-todos="1">marcar todas</button><button type="button" class="chip" data-imp-todos="0">desmarcar todas</button></div>
     <div class="imp-lista" id="impLista">${IMP.linhas.map(linhaImportHtml).join("")}</div>
-    <p class="pequeno" style="margin:8px 0 0">Confira categoria e pessoa linha a linha. A categoria escolhida fica guardada para a próxima importação com a mesma descrição. Nada é lançado antes de você confirmar.</p>
+    <datalist id="impTerceiros">${terceirosLista().map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
+    <p class="pequeno" style="margin:8px 0 0">Confira categoria, pessoa e, se a compra foi para alguém te devolver, o nome em "para terceiro". A categoria escolhida fica guardada para a próxima importação com a mesma descrição. Nada é lançado antes de você confirmar.</p>
     <div class="rodape-form"><button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn primario" type="submit">Importar selecionadas</button></div>`, confirmarImport);
   $("#dlg").classList.add("largo");
   const redesenhar = () => { $("#impLista", form).innerHTML = IMP.linhas.map(linhaImportHtml).join(""); $("#impResumo", form).innerHTML = resumoImportHtml(); };
   form.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.tagName === "INPUT") e.preventDefault(); });
+  form.addEventListener("input", (e) => { const el = e.target; if (el.dataset.k === "terceiro") { IMP.linhas[Number(el.dataset.i)].terceiro = el.value; $("#impResumo", form).innerHTML = resumoImportHtml(); } });
   form.addEventListener("change", (e) => {
     const el = e.target;
     if (el.dataset.imp === "contaId") { IMP.contaId = el.value; recalcImport(); redesenhar(); return; }
@@ -1618,7 +1623,7 @@ function confirmarImport() {
   for (const l of sel) {
     const desc = String(l.descricao || "").trim() || "Sem descrição", despesa = l.tipo === "despesa";
     const obj = { id: uid(), tipo: l.tipo, descricao: desc, valor: Math.round(l.valor * 100) / 100, parcelas: despesa ? l.parcelas : 1, parcelaInicial: despesa ? l.parcelaInicial : 1,
-      mesInicio: mesFatura(c, l.data) || l.data.slice(0, 7), mesFim: null, data: l.data, contaId: c.id, categoriaId: despesa ? l.categoriaId : null, pessoa: l.pessoa || D.pessoas[0], obs: "", revisar: false, terceiro: null, recebidos: {}, pagos: {}, origem: "extrato" };
+      mesInicio: mesFatura(c, l.data) || l.data.slice(0, 7), mesFim: null, data: l.data, contaId: c.id, categoriaId: despesa ? l.categoriaId : null, pessoa: l.pessoa || D.pessoas[0], obs: "", revisar: false, terceiro: despesa ? (String(l.terceiro || "").trim() || null) : null, recebidos: {}, pagos: {}, origem: "extrato" };
     if (l.fitid) obj.fitid = l.fitid;
     if (l.descOrig && l.descOrig !== desc) obj.descOrig = l.descOrig; // texto do extrato, para reconhecer duplicado mesmo renomeado
     D.lancamentos.push(obj); n++;
