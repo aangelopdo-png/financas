@@ -244,6 +244,10 @@
   .rel-lista { margin: 0; padding-left: 18px; line-height: 1.8; font-size: 13px; }
   .rel-rodape { margin-top: 18px; font-size: 11px; color: var(--muted); text-align: center; }
   #relPrint { display: none; }
+  .solte { position: fixed; inset: 0; z-index: 40; display: none; place-items: center; background: rgba(27,79,160,.16); border: 3px dashed var(--accent-2); pointer-events: none; }
+  .solte.on { display: grid; }
+  .solte > div { background: var(--surface); color: var(--accent); padding: 18px 26px; border-radius: var(--r); font-weight: 750; font-size: 18px; text-align: center; box-shadow: var(--shadow-lg); line-height: 1.5; }
+  .solte small { display: block; font-weight: 500; font-size: 13px; color: var(--text-2); }
   @media print {
     @page { margin: 12mm; }
     body > *:not(#relPrint) { display: none !important; }
@@ -316,8 +320,9 @@
 <dialog id="dlg"></dialog>
 <input type="file" id="arqExtrato" accept=".csv,.ofx,.qfx,.txt,text/csv,text/plain,application/x-ofx" style="display:none">
 <div id="relPrint"></div>
+<div class="solte" id="solte"><div>Solte aqui<small>extrato CSV/OFX ou texto do comprovante</small></div></div>
 
-<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-11-08T19:48:20.049Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
+<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-11-11T23:47:46.627Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
 <script>
 (function () {
 // Agente de alertas — Finanças Angelo
@@ -939,11 +944,12 @@ function quinzenaDe(dia) { return dia == null ? 0 : dia <= 15 ? 1 : 2; }
 function itensAPagar(mes) {
   return itensDoMes(mes, "despesa").map((x) => {
     const c = conta(x.l.contaId), dia = diaVenc(x.l, c);
-    const pago = c && c.porCompra ? pagoNoMes(x.l, mes) : !!(c && pagamento(mes, c.id));
+    const pago = pagoNoMes(x.l, mes) || !!(c && !c.porCompra && pagamento(mes, c.id));
     return { l: x.l, n: x.n, c, dia, q: quinzenaDe(dia), pago, pessoa: x.l.pessoa || D.pessoas[0] || "Sem pessoa" };
   });
 }
 function statusPag(x) {
+  if (pagoNoMes(x.l, mesAtual)) return { cls: "pago", txt: "pago" };
   if (!x.c) return { cls: "", txt: "sem conta" };
   if (x.c.porCompra) return statusItem(mesAtual, x.l, x.c);
   return statusFatura(mesAtual, x.c, x.l.valor);
@@ -983,7 +989,7 @@ function renderAPagar() {
     ${grupos.map((g) => {
       g.itens.sort((a, b) => (a.dia || 99) - (b.dia || 99) || b.l.valor - a.l.valor);
       const tot = v(g.itens), ab = g.itens.filter((x) => !x.pago), faltaG = v(ab), inteira = g.c ? fatTotal(g.c) : tot;
-      const s = !g.c ? { cls: "", txt: "sem conta" } : g.c.porCompra ? (ab.map((x) => statusItem(mesAtual, x.l, g.c)).sort((a, b) => ordem[a.cls] - ordem[b.cls])[0] || { cls: "pago", txt: "tudo pago" }) : statusFatura(mesAtual, g.c, tot);
+      const s = !g.c ? { cls: "", txt: "sem conta" } : g.c.porCompra ? (ab.map((x) => statusItem(mesAtual, x.l, g.c)).sort((a, b) => ordem[a.cls] - ordem[b.cls])[0] || { cls: "pago", txt: "tudo pago" }) : tot > 0.004 && faltaG < 0.005 ? { cls: "pago", txt: "pago" } : statusFatura(mesAtual, g.c, tot);
       const dias = [...new Set(g.itens.map((x) => x.dia).filter(Boolean))].sort((a, b) => a - b);
       const pessoasG = [...new Set(g.itens.map((x) => x.pessoa))];
       const pg = g.c && !g.c.porCompra ? pagamento(mesAtual, g.c.id) : null;
@@ -1057,7 +1063,7 @@ function renderLancamentos() {
   return `
   <div class="card">
     <h2>Lançamentos <small>${filtro.soMes ? mesLongo(mesAtual) : "todos"}</small>
-      <span class="acoes"><button class="btn mini primario" data-acao="novo" data-tipo="despesa">${I.mais} despesa</button><button class="btn mini" data-acao="novo" data-tipo="receita">${I.mais} receita</button><button class="btn mini" data-acao="novo" data-tipo="investimento">${I.mais} aporte</button><button class="btn mini" data-acao="importarExtrato">importar extrato</button></span></h2>
+      <span class="acoes"><button class="btn mini primario" data-acao="novo" data-tipo="despesa">${I.mais} despesa</button><button class="btn mini" data-acao="novo" data-tipo="receita">${I.mais} receita</button><button class="btn mini" data-acao="novo" data-tipo="investimento">${I.mais} aporte</button><button class="btn mini" data-acao="importarExtrato">importar extrato</button><button class="btn mini" data-acao="colarComprovante">colar comprovante</button></span></h2>
     <div class="filtros">
       <input id="fTexto" placeholder="buscar…" value="${esc(filtro.texto)}">
       <select id="fConta"><option value="">todas as contas</option>${opt(D.contas, filtro.conta, true)}</select>
@@ -1191,9 +1197,11 @@ function renderConfig() {
       ${!window.FIN_ARTIFACT && navigator.share ? `<button class="btn" data-acao="compartilhar">Compartilhar cópia</button>` : ""}
       <label class="btn" style="margin:0">Restaurar de arquivo <input type="file" id="importar" accept=".json,application/json,text/plain" style="display:none"></label>
       <button class="btn" data-acao="importarExtrato">Importar extrato (CSV/OFX)</button>
+      <button class="btn" data-acao="colarComprovante">Colar comprovante</button>
       <button class="btn" data-acao="limparRevisar">Marcar tudo como revisado</button>
       ${local ? `<button class="btn perigo" data-acao="apagarTudo">Apagar dados deste aparelho</button>` : ""}
     </div>
+    <p class="pequeno" style="margin-top:10px"><strong>No computador:</strong> é só arrastar o arquivo do extrato (CSV/OFX) ou o texto selecionado do comprovante para qualquer lugar do app. Imagem e PDF não são lidos: abra o comprovante, selecione o texto e arraste o texto.</p>
     <p class="pequeno" style="margin-top:10px"><strong>Importar extrato:</strong> no app do banco, exporte a fatura do cartão ou o extrato da conta em CSV ou OFX (Nubank, Bradesco, Caixa, Itaú, C6…), abra aqui e confira linha a linha antes de confirmar. Linhas já lançadas (mesma data, valor e descrição) ficam desmarcadas; "3/10" na descrição vira parcelado; estorno no cartão é ignorado e entrada em conta corrente vira receita.</p>
     <p class="pequeno" style="margin-top:10px">Para levar do PC ao celular (ou o contrário): "Copiar cópia" num aparelho, mande o texto para você mesmo (WhatsApp, e-mail, Notas) e "Colar cópia" no outro. A cópia substitui tudo o que está no aparelho de destino.</p>
     ${local ? `<details style="margin-top:10px"><summary class="pequeno" style="cursor:pointer">Como instalar no celular (Android, Chrome)</summary>
@@ -1286,6 +1294,8 @@ function formLancamento(l) {
         mesInicio: fd.mesInicio, mesFim: modo === "mensal" && fd.mesFim ? fd.mesFim : null, data: modo === "mensal" ? "" : (fd.data || ""),
         contaId: fd.contaId, categoriaId: l.tipo === "despesa" ? fd.categoriaId : (l.tipo === "investimento" ? "investimento" : null), pessoa: fd.pessoa, obs: fd.obs.trim(), revisar: false,
         terceiro: (fd.terceiro || "").trim() || null, recebidos: l.recebidos || {}, pagos: l.pagos || {} };
+      for (const k of ["fitid", "descOrig", "origem", "comprovanteId"]) if (l[k]) obj[k] = l[k];
+      if (l._pagoComprovante && obj.tipo === "despesa") obj.pagos = { [obj.mesInicio]: obj.data || new Date().toISOString().slice(0, 10) };
       if (conta(obj.contaId)?.porCompra && obj.parcelas && !obj.data) { avisar("Neste cartão a data da compra é obrigatória: ela define o vencimento."); return false; }
       if (!obj.valor || obj.valor <= 0) { avisar("Informe um valor maior que zero."); return false; }
       const i = D.lancamentos.findIndex((x) => x.id === obj.id);
@@ -1632,6 +1642,101 @@ function confirmarImport() {
   IMP = null; mudou(); avisar(`${n} lançamento(s) importado(s) para ${c.nome}.`);
 }
 
+// ============ colar comprovante (texto copiado da imagem/PDF) → lançamento ============
+const MESES_ABREV = { jan: 1, fev: 2, mar: 3, abr: 4, mai: 5, jun: 6, jul: 7, ago: 8, set: 9, out: 10, nov: 11, dez: 12 };
+const ROTULO_COMPROV = /^(nome|cpf|cnpj|cpf\/cnpj|institui[cç][aã]o|banco|ag[eê]ncia|conta|tipo de conta|chave( pix)?|chave aleat[oó]ria|e-?mail|telefone|celular|valor|data|hor[aá]rio|tipo|id|autentica[cç][aã]o|descri[cç][aã]o|mensagem|origem|destino|para|de|pagador|recebedor|favorecido|benefici[aá]rio|cedente|documento|n[uú]mero)\b\s*:?\s*$/i;
+function lerComprovante(texto) {
+  const txt = String(texto || "").replace(/\r/g, "").replace(/ /g, " ");
+  const linhas = txt.split("\n").map((s) => s.trim()).filter(Boolean);
+  const s = semAcento(txt).toLowerCase();
+  const r = { valor: null, data: null, nome: "", forma: "", id: "", receita: false };
+  // valor: R$ com vírgula; prefere linha (ou rótulo logo acima) com "valor/total/pago", foge de saldo/tarifa/limite
+  let melhor = null;
+  linhas.forEach((l, i) => {
+    const ms = [...l.matchAll(/(?:R\$\s*)(-?\s*[\d.]*\d,\d{2})|(?:^|\s)(\d{1,3}(?:\.\d{3})*,\d{2})(?:\s|$)/g)];
+    for (const m of ms) {
+      const v = parseValor((m[1] || m[2]).replace(/\s/g, "")); if (v == null || !v) continue;
+      const ctx = semAcento((linhas[i - 1] || "") + " " + l).toLowerCase();
+      let pts = m[1] ? 1 : 0;
+      if (/valor|total|pago|transferid|enviad|recebid|debitad|cobrad/.test(ctx)) pts += 3;
+      if (/saldo|tarifa|limite|juros|multa|desconto|encargo|disponivel/.test(ctx)) pts -= 3;
+      if (!melhor || pts > melhor.pts) melhor = { pts, v: Math.abs(v) };
+    }
+  });
+  if (melhor) r.valor = Math.round(melhor.v * 100) / 100;
+  // data: dd/mm/aaaa, "11 nov 2026", "11 de novembro de 2026"; prefere linha com "data"
+  const datas = [];
+  linhas.forEach((l, i) => {
+    const ctx = semAcento((linhas[i - 1] || "") + " " + l).toLowerCase();
+    let d = null, m;
+    if ((m = l.match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/))) d = parseData(m[0]);
+    else if ((m = semAcento(l).toLowerCase().match(/(\d{1,2})\s*(?:de\s+)?(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)[a-z]*\.?\s*(?:de\s+)?(\d{4})/)))
+      d = parseData(`${m[1]}/${MESES_ABREV[m[2]]}/${m[3]}`);
+    if (d) datas.push({ d, pts: (/pagament|pago em|realizad|efetuad|transferencia|debitad/.test(ctx) ? 2 : 0) + (/data|hora/.test(ctx) ? 1 : 0) - (/vencimento|validade|emissao/.test(ctx) ? 3 : 0) });
+  });
+  if (datas.length) r.data = datas.sort((a, b) => b.pts - a.pts)[0].d;
+  // forma de pagamento
+  r.forma = /\bpix\b/.test(s) ? "Pix" : /boleto|linha digitavel|codigo de barras/.test(s) ? "Boleto" : /\bted\b/.test(s) ? "TED" : /\bdoc\b/.test(s) ? "DOC" : /debito automatico/.test(s) ? "Débito automático" : /cartao de debito|compra no debito/.test(s) ? "Débito" : /transferencia/.test(s) ? "Transferência" : "";
+  r.receita = /(pix|transferencia|ted) recebid|voce recebeu|comprovante de recebimento|recebimento de pix|credito em conta/.test(s);
+  // nome: dentro da seção do outro lado (destino ao pagar, origem ao receber)
+  const secao = r.receita ? /^(origem|de|pagador|quem pagou|remetente|enviado por)\b/i : /^(destino|para|favorecido|recebedor|benefici[aá]rio|cedente|quem recebeu|enviado para|pago a|empresa|estabelecimento)\b/i;
+  const nomeValido = (l) => l && !ROTULO_COMPROV.test(semAcento(l)) && !/\d{3}[.*•]|\*{2,}|•{2,}|^r\$|^\d+$|@|^[\d\s.\-\/]+$/.test(l) && /[a-zA-ZÀ-ú]{2}/.test(l) && l.length <= 60;
+  for (let i = 0; i < linhas.length && !r.nome; i++) {
+    const l = linhas[i], m = l.match(secao); if (!m) continue;
+    const resto = l.slice(m[0].length).replace(/^[\s:–-]+/, "");
+    if (nomeValido(resto)) { r.nome = resto; break; }
+    for (let j = i + 1; j <= i + 4 && j < linhas.length; j++) {
+      if (/^nome\b/i.test(linhas[j])) { const depois = linhas[j].replace(/^nome\s*:?\s*/i, ""); if (nomeValido(depois)) { r.nome = depois; break; } continue; }
+      if (nomeValido(linhas[j])) { r.nome = linhas[j]; break; }
+    }
+  }
+  // identificador: Pix (E + 31) ou rótulo de autenticação/ID/protocolo
+  const e2e = txt.match(/\b[ED]\d{8}[0-9A-Za-z]{23}\b/);
+  if (e2e) r.id = e2e[0];
+  else for (let i = 0; i < linhas.length; i++) { const m = linhas[i].match(/^(id da transa[cç][aã]o|id\b|autentica[cç][aã]o|c[oó]digo de autentica[cç][aã]o|n[uú]mero de controle|protocolo|controle)\s*:?\s*(.*)$/i); if (m) { const v = (m[2] || linhas[i + 1] || "").trim(); if (/[0-9A-Za-z]{6,}/.test(v)) { r.id = v.slice(0, 60); break; } } }
+  return r;
+}
+function previaComprovante(r) {
+  const it = (rot, v, falta) => `<div class="item" style="padding:6px 0"><div class="txt"><div class="meta">${rot}</div><div class="tit" style="font-weight:600">${v ? esc(v) : `<span class="neg">${falta}</span>`}</div></div></div>`;
+  return `<div class="lista">${it("Valor", r.valor ? R$(r.valor) : "", "não achei: confira o texto")}${it("Data", r.data ? r.data.split("-").reverse().join("/") : "", "não achei: fica a de hoje")}${it(r.receita ? "Quem pagou" : "Para quem", r.nome, "não achei: digite no próximo passo")}${it("Forma / tipo", [r.forma, r.receita ? "entrada (receita)" : "saída (despesa)"].filter(Boolean).join(" · "), "")}${r.id ? it("Identificador", r.id, "") : ""}</div>`;
+}
+function colarComprovante(texto = "") {
+  const form = abrir(`<h3>Colar comprovante</h3>
+    <p class="pequeno" style="margin:0 0 10px">No iPhone, abra o comprovante (print, foto ou PDF), toque e segure sobre o texto, escolha <b>Selecionar tudo</b> e <b>Copiar</b>. Volte aqui e cole. Só o texto é lido; nenhuma imagem fica guardada no app.</p>
+    <div class="campo"><textarea class="copia" name="t" placeholder="Cole aqui o texto do comprovante" style="min-height:130px"></textarea></div>
+    <div style="margin:-4px 0 10px"><button type="button" class="btn mini" data-colar>colar da área de transferência</button></div>
+    <div id="cmpPrevia" class="pequeno">Cole o texto para ver o que foi lido.</div>
+    <div class="rodape-form"><button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn primario" type="submit">Continuar</button></div>`, (f) => {
+      const r = lerComprovante(f.t.value);
+      if (!f.t.value.trim()) { avisar("Cole o texto do comprovante primeiro."); return false; }
+      if (!r.valor) { avisar("Não achei o valor (R$) no texto. Confira se copiou o comprovante inteiro."); return false; }
+      setTimeout(() => lancarComprovante(r), 0); // o diálogo fecha antes de abrir o formulário do lançamento
+    });
+  const ta = $("[name=t]", form), prev = $("#cmpPrevia", form);
+  const atualiza = () => { prev.innerHTML = ta.value.trim() ? previaComprovante(lerComprovante(ta.value)) : "Cole o texto para ver o que foi lido."; };
+  ta.addEventListener("input", atualiza);
+  if (texto) { ta.value = texto; atualiza(); }
+  $("[data-colar]", form).onclick = async () => { try { const t = await navigator.clipboard.readText(); if (t) { ta.value = t; atualiza(); } else avisar("A área de transferência está vazia."); } catch (e) { avisar("O navegador não deixou ler. Toque no campo e use Colar."); ta.focus(); } };
+}
+async function lancarComprovante(r) {
+  const tipo = r.receita ? "receita" : "despesa";
+  const data = r.data || new Date().toISOString().slice(0, 10);
+  const parecido = D.lancamentos.find((l) => (r.id && (l.comprovanteId === r.id || (l.obs || "").includes(r.id))) || (l.data === data && Math.abs(l.valor - r.valor) < 0.005 && l.tipo === tipo));
+  if (parecido && !(await confirmar(`Já existe "${parecido.descricao}" de ${R$(parecido.valor)} em ${data.split("-").reverse().join("/")}. Lançar mesmo assim?`))) return;
+  const l = novoLancamento(tipo);
+  const contaCorrente = D.contas.find((c) => c.tipo === "conta"), contaBoleto = D.contas.find((c) => c.tipo === "boleto");
+  l.contaId = ((r.forma === "Boleto" || r.forma === "Débito automático") && contaBoleto ? contaBoleto : contaCorrente || D.contas[0] || {}).id;
+  l.descricao = [r.nome, r.forma].filter(Boolean).join(" · ") || (r.receita ? "Recebimento" : "Pagamento");
+  l.valor = r.valor; l.parcelas = 1; l.data = data;
+  l.mesInicio = mesFatura(conta(l.contaId), data) || data.slice(0, 7);
+  if (tipo === "despesa") l.categoriaId = sugerirCategoria(r.nome || r.forma);
+  l.obs = ["comprovante", r.forma, r.id ? "ID " + r.id : ""].filter(Boolean).join(" · ");
+  if (r.id) l.comprovanteId = r.id;
+  l.origem = "comprovante";
+  l._pagoComprovante = tipo === "despesa"; // o comprovante prova que já saiu da conta: o item nasce pago
+  formLancamento(l);
+}
+
 // ============ relatório do mês (imprimir / PDF) ============
 function htmlRelatorio(mes) {
   const t = totaisMes(mes), ant = somaMes(mes, -1), ta = totaisMes(ant);
@@ -1644,7 +1749,7 @@ function htmlRelatorio(mes) {
   const varTxt = (a, b, bomSubir = false) => { const d = a - b; if (Math.abs(d) < 0.005) return `<span class="pequeno">igual</span>`; const base = Math.abs(b); return `<span class="${(d > 0) === bomSubir ? "pos" : "neg"}">${d > 0 ? "+" : "−"}${R$(Math.abs(d))}${base > 0.004 ? ` (${d > 0 ? "+" : "−"}${Math.round((Math.abs(d) / base) * 100)}%)` : ""}</span>`; };
   const quinz = [[1, `1ª quinzena · dias 1 a 15`], [2, `2ª quinzena · dias 16 a ${ultimoDia}`], [0, "Sem dia de vencimento"]].map(([q, rot]) => { const it = itens.filter((x) => x.q === q); return { rot, n: it.length, tot: v(it), fal: v(it.filter((x) => !x.pago)) }; }).filter((x) => x.n);
   const porConta = D.contas.map((c) => { const it = itens.filter((x) => x.l.contaId === c.id); const tot = v(it), ab = it.filter((x) => !x.pago), fal = v(ab); const pg = c.porCompra ? null : pagamento(mes, c.id);
-    let s; if (!c.porCompra) s = statusFatura(mes, c, tot); else if (!ab.length) s = { cls: "pago", txt: "pago" }; else { const pior = ab.map((x) => statusItem(mes, x.l, c)).sort((a, b) => ordem[a.cls] - ordem[b.cls])[0]; s = { cls: pior.cls, txt: (fal < tot - 0.004 ? "parcial · " : "") + pior.txt }; }
+    let s; if (!c.porCompra) s = tot > 0.004 && fal < 0.005 ? { cls: "pago", txt: "pago" } : statusFatura(mes, c, tot); else if (!ab.length) s = { cls: "pago", txt: "pago" }; else { const pior = ab.map((x) => statusItem(mes, x.l, c)).sort((a, b) => ordem[a.cls] - ordem[b.cls])[0]; s = { cls: pior.cls, txt: (fal < tot - 0.004 ? "parcial · " : "") + pior.txt }; }
     return { c, n: it.length, tot, fal, pg, s }; }).filter((x) => x.n).sort((a, b) => (a.c.vencimento || 99) - (b.c.vencimento || 99));
   const semConta = itens.filter((x) => !x.c);
   const gastoCat = (tt, id) => soma(tt.desp.filter((x) => x.l.categoriaId === id), (x) => x.l.valor);
@@ -1763,6 +1868,7 @@ function ligarEventos() {
     else if (a === "rodarAgente") { ALERTAS = null; render(); }
     else if (a === "limparRevisar") { D.lancamentos.forEach((l) => (l.revisar = false)); mudou(); }
     else if (a === "relatorio") abrirRelatorio();
+    else if (a === "colarComprovante") colarComprovante();
     else if (a === "importarExtrato") { if (!D.contas.length) return avisar("Cadastre um cartão ou conta antes de importar."); $("#arqExtrato").click(); }
     else if (a === "apagarTudo") { if (await confirmar("Apagar TODOS os dados deste aparelho? Baixe uma cópia antes.") && await confirmar("Tem certeza? Não dá para desfazer.")) { localStorage.removeItem(LS_KEY); location.reload(); } }
   };
@@ -1792,6 +1898,41 @@ $("#mesProx").onclick = () => { mesAtual = somaMes(mesAtual, 1); render(); };
 $("#mesLabel").onclick = () => { mesAtual = hojeMes(); render(); };
 $("#fab").onclick = () => formLancamento(novoLancamento("despesa"));
 $("#arqExtrato").onchange = (e) => { const f = e.target.files[0]; e.target.value = ""; if (f) importarExtrato(f); };
+// arrastar e soltar: arquivo de extrato vira importação; texto (ou .txt) do comprovante abre "Colar comprovante"
+(function () {
+  const sol = $("#solte"); let dentro = 0;
+  const temCoisa = (e) => [...(e.dataTransfer?.types || [])].some((t) => t === "Files" || t === "text/plain");
+  const mostra = (v) => sol.classList.toggle("on", v);
+  const ehExtrato = (t) => /<OFX>|<STMTTRN>/i.test(t) || csvParse(t).length >= 3;
+  document.addEventListener("dragenter", (e) => { if (!temCoisa(e)) return; dentro++; mostra(true); });
+  document.addEventListener("dragleave", () => { dentro = Math.max(0, dentro - 1); if (!dentro) mostra(false); });
+  document.addEventListener("dragend", () => { dentro = 0; mostra(false); });
+  document.addEventListener("dragover", (e) => { if (temCoisa(e)) e.preventDefault(); });
+  document.addEventListener("drop", async (e) => {
+    dentro = 0; mostra(false);
+    const alvo = e.target;
+    if (alvo && /^(TEXTAREA|INPUT)$/.test(alvo.tagName) && !alvo.disabled && alvo.type !== "file") return; // soltar dentro de um campo: o navegador cola o texto ali
+    e.preventDefault();
+    const dt = e.dataTransfer, arqs = [...(dt.files || [])], dlgAberto = $("#dlg").open;
+    if (arqs.length) {
+      const f = arqs[0];
+      if (arqs.length > 1) avisar(`Solte um arquivo por vez. Abrindo só ${f.name}.`);
+      if (/^image\//.test(f.type) || f.type === "application/pdf" || /\.(png|jpe?g|heic|heif|webp|gif|pdf)$/i.test(f.name)) return avisar("Imagem e PDF o app não lê sozinho. Abra o comprovante, selecione o texto e arraste o texto (ou copie e use Colar comprovante).");
+      if (dlgAberto) return avisar("Feche a janela aberta antes de soltar outro arquivo.");
+      if (!D.contas.length) return avisar("Cadastre um cartão ou conta antes.");
+      let txt = ""; try { txt = (await lerArquivoTexto(f)).replace(/^\uFEFF/, ""); } catch (err) {}
+      if (/\.(csv|ofx|qfx)$/i.test(f.name) || ehExtrato(txt)) return importarExtrato(f);
+      if (txt.trim()) return colarComprovante(txt);
+      return avisar("Não reconheci o arquivo. Use o extrato em CSV/OFX ou o texto do comprovante.");
+    }
+    const t = dt.getData("text/plain");
+    if (!t || !t.trim()) return;
+    if (dlgAberto) { const ta = $("#dlg textarea[name=t]"); if (ta) { ta.value = t; ta.dispatchEvent(new Event("input", { bubbles: true })); } else avisar("Feche a janela aberta antes de soltar o texto."); return; }
+    if (!D.contas.length) return avisar("Cadastre um cartão ou conta antes.");
+    if (ehExtrato(t)) return importarExtrato(new File([t], "texto-arrastado.csv", { type: "text/csv" }));
+    colarComprovante(t);
+  });
+})();
 document.addEventListener("keydown", (e) => { if (e.key === "n" && !e.ctrlKey && !$("#dlg").open && !["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName)) { e.preventDefault(); formLancamento(novoLancamento("despesa")); } });
 if (!window.FIN_ARTIFACT && "serviceWorker" in navigator && location.protocol.startsWith("http") && (true)) navigator.serviceWorker.register("./sw.js").catch(() => {});
 
