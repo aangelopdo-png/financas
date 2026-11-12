@@ -318,11 +318,12 @@
 <button class="fab" id="fab" title="Nova despesa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="tip" id="tip"></div>
 <dialog id="dlg"></dialog>
+<input type="file" id="arqComprovante" accept="image/*,application/pdf,.pdf" style="display:none">
 <input type="file" id="arqExtrato" accept=".csv,.ofx,.qfx,.txt,text/csv,text/plain,application/x-ofx" style="display:none">
 <div id="relPrint"></div>
 <div class="solte" id="solte"><div>Solte aqui<small>extrato CSV/OFX ou texto do comprovante</small></div></div>
 
-<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-11-11T23:47:46.627Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
+<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-11-12T00:01:40.585Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
 <script>
 (function () {
 // Agente de alertas — Finanças Angelo
@@ -349,6 +350,7 @@ const REGRAS = {
   diasSaldoInvestDesatualizado: 35,
   mesesReservaMinima: 3,        // reserva de emergência de referência: 3 meses de despesas
   pctSugestaoAporte: 0.1,       // lembra de guardar 10% da receita quando não há aporte no mês
+  diaConferenciaCredito: 5,     // a partir deste dia lembra de conferir Registrato (Banco Central) e Serasa no mês
 };
 
 // ---------- utilidades de mês/parcela (mesmas regras do index.html) ----------
@@ -486,6 +488,10 @@ function gerarAlertas(D, hoje = new Date()) {
     const sugestao = Math.min(sobra, tr * REGRAS.pctSugestaoAporte);
     add("info", "investimento", `Nenhum aporte lançado em ${mesLongo(mes)} e a sobra prevista é ${R$(sobra)}. Guardar ${R$(sugestao)} (${Math.round(REGRAS.pctSugestaoAporte * 100)}% da receita) já mantém o hábito.`);
   } else if (ti > 0) add("bom", "investimento", `Aportes de ${R$(ti)} lançados em ${mesLongo(mes)}.`);
+
+  // ---- Conferência mensal do nome: Registrato (Banco Central) e Serasa ----
+  if (!(D.conferenciaCredito || {})[mes] && hoje.getDate() >= REGRAS.diaConferenciaCredito)
+    add(NODE ? "info" : "aviso", "inadimplencia", `Conferência de ${mesLongo(mes)} pendente: veja no Registrato (Banco Central) e no Serasa se apareceu dívida, empréstimo ou consulta em seu nome que não está no app. Depois toque em "Já conferi" no Resumo.`);
 
   // ---- Dados pendentes ----
   const revisar = desp.filter((l) => l.revisar).length;
@@ -766,7 +772,7 @@ const Store = {
   },
 };
 function normalizar(d) {
-  d.pagamentos ||= []; d.saldos ||= {}; d.investimentos ||= []; d.pessoas ||= ["Angelo"]; d.orcamentos ||= {}; d.lancamentos ||= []; d.contas ||= []; d.regrasImport ||= {};
+  d.conferenciaCredito ||= {}; d.pagamentos ||= []; d.saldos ||= {}; d.investimentos ||= []; d.pessoas ||= ["Angelo"]; d.orcamentos ||= {}; d.lancamentos ||= []; d.contas ||= []; d.regrasImport ||= {};
   d.categorias ||= [{ id: "outros", nome: "Outros", grupo: "Outros", cor: "#8a8a8a" }];
   d.categorias.forEach((c) => (c.grupo ||= "Outros"));
   return d;
@@ -800,6 +806,7 @@ function render() {
 const alertaHtml = (cls, ico, txt) => `<div class="alerta ${cls}"><span class="ico">${ico}</span><div>${txt}</div></div>`;
 function avatarConta(c) { return `<div class="avatar" style="background:${corConta(c)}">${esc(iniciais(c.nome))}</div>`; }
 
+const REGRA_CONF_CREDITO = 5; // a partir deste dia do mês o Resumo lembra de conferir Registrato e Serasa (mesmo valor do agente.js)
 function renderResumo(t) {
   const div = dividaRestante(mesAtual);
   const revisar = D.lancamentos.filter((l) => l.revisar && parcelaNoMes(l, mesAtual)).length;
@@ -815,6 +822,7 @@ function renderResumo(t) {
   const estourados = porCat.filter((x) => x.orc && x.total > x.orc);
   if (estourados.length) alertas.push(alertaHtml("", "%", `Orçamento estourado: ${estourados.map((x) => `${esc(x.cat.nome)} (${R$(x.total - x.orc)} acima)`).join(", ")}.`));
   if (terminam.length) alertas.push(alertaHtml("bom", "✓", `Última parcela este mês: ${terminam.map((x) => `${esc(x.l.descricao)} (${R$(x.l.valor)})`).join(", ")}. Mês que vem alivia <strong>${R$(soma(terminam, (x) => x.l.valor))}</strong>.`));
+  if (mesAtual === hojeMes() && !D.conferenciaCredito[mesAtual] && new Date().getDate() >= REGRA_CONF_CREDITO) alertas.push(alertaHtml("", "?", `<strong>Conferência do mês:</strong> veja no <a href="https://www.bcb.gov.br/cidadaniafinanceira/registrato" target="_blank" rel="noopener">Registrato</a> (Banco Central, entra com gov.br) e no <a href="https://www.serasa.com.br/" target="_blank" rel="noopener">Serasa</a> se apareceu dívida, empréstimo ou consulta em seu nome que não está aqui. Se aparecer, lance como parcelado. <a href="#" data-acao="conferiCredito">Já conferi</a>`));
   if (revisar) alertas.push(alertaHtml("info", "i", `${revisar} lançamento(s) importados da planilha ainda sem descrição conferida. <a href="#" data-acao="irRevisar">Revisar agora</a>.`));
   const compromet = t.tr ? (t.fixas + t.parcelas) / t.tr : 0;
   const pend = pendenteTerceiros(mesAtual), totalPend = soma(Object.values(pend));
@@ -1063,7 +1071,7 @@ function renderLancamentos() {
   return `
   <div class="card">
     <h2>Lançamentos <small>${filtro.soMes ? mesLongo(mesAtual) : "todos"}</small>
-      <span class="acoes"><button class="btn mini primario" data-acao="novo" data-tipo="despesa">${I.mais} despesa</button><button class="btn mini" data-acao="novo" data-tipo="receita">${I.mais} receita</button><button class="btn mini" data-acao="novo" data-tipo="investimento">${I.mais} aporte</button><button class="btn mini" data-acao="importarExtrato">importar extrato</button><button class="btn mini" data-acao="colarComprovante">colar comprovante</button></span></h2>
+      <span class="acoes"><button class="btn mini primario" data-acao="novo" data-tipo="despesa">${I.mais} despesa</button><button class="btn mini" data-acao="novo" data-tipo="receita">${I.mais} receita</button><button class="btn mini" data-acao="novo" data-tipo="investimento">${I.mais} aporte</button><button class="btn mini" data-acao="importarExtrato">importar extrato</button><button class="btn mini" data-acao="colarComprovante">comprovante</button></span></h2>
     <div class="filtros">
       <input id="fTexto" placeholder="buscar…" value="${esc(filtro.texto)}">
       <select id="fConta"><option value="">todas as contas</option>${opt(D.contas, filtro.conta, true)}</select>
@@ -1197,11 +1205,11 @@ function renderConfig() {
       ${!window.FIN_ARTIFACT && navigator.share ? `<button class="btn" data-acao="compartilhar">Compartilhar cópia</button>` : ""}
       <label class="btn" style="margin:0">Restaurar de arquivo <input type="file" id="importar" accept=".json,application/json,text/plain" style="display:none"></label>
       <button class="btn" data-acao="importarExtrato">Importar extrato (CSV/OFX)</button>
-      <button class="btn" data-acao="colarComprovante">Colar comprovante</button>
+      <button class="btn" data-acao="colarComprovante">Comprovante (foto, PDF ou texto)</button>
       <button class="btn" data-acao="limparRevisar">Marcar tudo como revisado</button>
       ${local ? `<button class="btn perigo" data-acao="apagarTudo">Apagar dados deste aparelho</button>` : ""}
     </div>
-    <p class="pequeno" style="margin-top:10px"><strong>No computador:</strong> é só arrastar o arquivo do extrato (CSV/OFX) ou o texto selecionado do comprovante para qualquer lugar do app. Imagem e PDF não são lidos: abra o comprovante, selecione o texto e arraste o texto.</p>
+    <p class="pequeno" style="margin-top:10px"><strong>No computador:</strong> é só arrastar o arquivo do extrato (CSV/OFX) ou o comprovante (print, foto, PDF ou texto) para qualquer lugar do app. Foto e PDF são lidos neste aparelho; na primeira vez o app baixa o leitor (cerca de 5,5 MB para foto e 1,4 MB para PDF).</p>
     <p class="pequeno" style="margin-top:10px"><strong>Importar extrato:</strong> no app do banco, exporte a fatura do cartão ou o extrato da conta em CSV ou OFX (Nubank, Bradesco, Caixa, Itaú, C6…), abra aqui e confira linha a linha antes de confirmar. Linhas já lançadas (mesma data, valor e descrição) ficam desmarcadas; "3/10" na descrição vira parcelado; estorno no cartão é ignorado e entrada em conta corrente vira receita.</p>
     <p class="pequeno" style="margin-top:10px">Para levar do PC ao celular (ou o contrário): "Copiar cópia" num aparelho, mande o texto para você mesmo (WhatsApp, e-mail, Notas) e "Colar cópia" no outro. A cópia substitui tudo o que está no aparelho de destino.</p>
     ${local ? `<details style="margin-top:10px"><summary class="pequeno" style="cursor:pointer">Como instalar no celular (Android, Chrome)</summary>
@@ -1702,20 +1710,21 @@ function previaComprovante(r) {
 }
 function colarComprovante(texto = "") {
   const form = abrir(`<h3>Colar comprovante</h3>
-    <p class="pequeno" style="margin:0 0 10px">No iPhone, abra o comprovante (print, foto ou PDF), toque e segure sobre o texto, escolha <b>Selecionar tudo</b> e <b>Copiar</b>. Volte aqui e cole. Só o texto é lido; nenhuma imagem fica guardada no app.</p>
+    <p class="pequeno" style="margin:0 0 10px">Toque em <b>ler foto ou PDF</b> e escolha o print ou o arquivo do comprovante, ou cole aqui o texto copiado (no iPhone: toque e segure no texto do print › Selecionar tudo › Copiar). A leitura é feita neste aparelho e nenhuma imagem fica guardada no app. O código <b>FINANCAS-LANC</b> enviado pela Lívia também pode ser colado aqui.</p>
     <div class="campo"><textarea class="copia" name="t" placeholder="Cole aqui o texto do comprovante" style="min-height:130px"></textarea></div>
-    <div style="margin:-4px 0 10px"><button type="button" class="btn mini" data-colar>colar da área de transferência</button></div>
+    <div style="margin:-4px 0 10px;display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn mini" data-colar>colar da área de transferência</button><button type="button" class="btn mini primario" data-foto>ler foto ou PDF</button></div>
     <div id="cmpPrevia" class="pequeno">Cole o texto para ver o que foi lido.</div>
     <div class="rodape-form"><button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn primario" type="submit">Continuar</button></div>`, (f) => {
-      const r = lerComprovante(f.t.value);
+      const r = lerTextoComprovante(f.t.value);
       if (!f.t.value.trim()) { avisar("Cole o texto do comprovante primeiro."); return false; }
       if (!r.valor) { avisar("Não achei o valor (R$) no texto. Confira se copiou o comprovante inteiro."); return false; }
       setTimeout(() => lancarComprovante(r), 0); // o diálogo fecha antes de abrir o formulário do lançamento
     });
   const ta = $("[name=t]", form), prev = $("#cmpPrevia", form);
-  const atualiza = () => { prev.innerHTML = ta.value.trim() ? previaComprovante(lerComprovante(ta.value)) : "Cole o texto para ver o que foi lido."; };
+  const atualiza = () => { prev.innerHTML = ta.value.trim() ? previaComprovante(lerTextoComprovante(ta.value)) : "Cole o texto para ver o que foi lido."; };
   ta.addEventListener("input", atualiza);
   if (texto) { ta.value = texto; atualiza(); }
+  $("[data-foto]", form).onclick = () => $("#arqComprovante").click();
   $("[data-colar]", form).onclick = async () => { try { const t = await navigator.clipboard.readText(); if (t) { ta.value = t; atualiza(); } else avisar("A área de transferência está vazia."); } catch (e) { avisar("O navegador não deixou ler. Toque no campo e use Colar."); ta.focus(); } };
 }
 async function lancarComprovante(r) {
@@ -1735,6 +1744,115 @@ async function lancarComprovante(r) {
   l.origem = "comprovante";
   l._pagoComprovante = tipo === "despesa"; // o comprovante prova que já saiu da conta: o item nasce pago
   formLancamento(l);
+}
+
+// ============ comprovante em foto ou PDF: lido NESTE aparelho (leitor baixado só na 1ª vez) ============
+const LIB = {
+  tess: "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js",
+  tessWorker: "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js",
+  tessCore: "https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1",
+  tessLang: "https://cdn.jsdelivr.net/npm/@tesseract.js-data/por@1.0.0/4.0.0_best_int",
+  pdf: "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js",
+  pdfWorker: "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js",
+};
+function carregarScript(src) {
+  return new Promise((ok, erro) => {
+    if (document.querySelector(`script[data-lib="${src}"]`)?.dataset.ok) return ok();
+    const s = document.createElement("script"); s.src = src; s.dataset.lib = src;
+    s.onload = () => { s.dataset.ok = "1"; ok(); }; s.onerror = () => { s.remove(); erro(new Error("sem internet para baixar o leitor")); };
+    document.head.appendChild(s);
+  });
+}
+let OCR_WORKER = null, OCR_PROG = null;
+async function imagemParaCanvas(f) {
+  const url = URL.createObjectURL(f);
+  try {
+    const img = await new Promise((ok, erro) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => erro(new Error("formato de imagem que este navegador não abre")); i.src = url; });
+    const k = Math.min(1, 2200 / Math.max(img.naturalWidth, img.naturalHeight)); // foto de 12 MP fica lenta: reduz o lado maior
+    const cv = document.createElement("canvas"); cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
+    const g = cv.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, cv.width, cv.height); g.drawImage(img, 0, 0, cv.width, cv.height);
+    return cv;
+  } finally { URL.revokeObjectURL(url); }
+}
+async function ocrImagem(fonte) {
+  await carregarScript(LIB.tess);
+  if (!OCR_WORKER) OCR_WORKER = await Tesseract.createWorker("por", 1, { workerPath: LIB.tessWorker, corePath: LIB.tessCore, langPath: LIB.tessLang, logger: (m) => OCR_PROG && OCR_PROG(m) });
+  const { data } = await OCR_WORKER.recognize(fonte);
+  return data.text || "";
+}
+async function textoDoPdf(f) {
+  await carregarScript(LIB.pdf);
+  pdfjsLib.GlobalWorkerOptions.workerSrc = LIB.pdfWorker;
+  const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(await f.arrayBuffer()) }).promise;
+  let txt = "";
+  for (let p = 1; p <= Math.min(pdf.numPages, 3); p++) {
+    const c = await (await pdf.getPage(p)).getTextContent();
+    let y0 = null, linha = [];
+    const fecha = () => { if (linha.length) txt += linha.join(" ") + "\n"; linha = []; };
+    for (const it of c.items) {
+      const y = Math.round(it.transform[5]);
+      if (y0 !== null && Math.abs(y - y0) > 2) fecha(); // mudou de linha na página
+      y0 = y; if (it.str.trim()) linha.push(it.str.trim());
+      if (it.hasEOL) { fecha(); y0 = null; }
+    }
+    fecha();
+  }
+  if (txt.replace(/\s/g, "").length >= 20) return txt;
+  // PDF escaneado (sem texto): desenha a 1ª página e lê como imagem
+  const pg = await pdf.getPage(1), vp = pg.getViewport({ scale: 2 }), cv = document.createElement("canvas");
+  cv.width = vp.width; cv.height = vp.height;
+  await pg.render({ canvasContext: cv.getContext("2d"), viewport: vp }).promise;
+  return ocrImagem(cv);
+}
+async function lerArquivoComprovante(f) {
+  if ($("#dlg").open) $("#dlg").close();
+  const ehPdf = f.type === "application/pdf" || /\.pdf$/i.test(f.name);
+  const d = dialogo2(`<form method="dialog"><h3>Lendo o comprovante…</h3><p class="pequeno" id="ocrMsg">${ehPdf ? "Na primeira vez o app baixa o leitor de PDF (cerca de 1,4 MB)." : "Na primeira vez o app baixa o leitor de imagem (cerca de 5,5 MB); depois fica mais rápido."} O arquivo é lido neste aparelho e não sai dele.</p><div class="barra" style="margin-top:12px"><i id="ocrBarra" style="width:4%;background:var(--accent-2)"></i></div></form>`);
+  d.onclose = null;
+  const NOMES = { "loading tesseract core": "baixando o leitor…", "initializing tesseract": "preparando…", "loading language traineddata": "baixando o português…", "initializing api": "preparando…", "recognizing text": "lendo o texto…" };
+  OCR_PROG = (m) => { const b = $("#ocrBarra"), t = $("#ocrMsg"); if (b && typeof m.progress === "number") b.style.width = Math.max(4, Math.round(m.progress * 100)) + "%"; if (t && NOMES[m.status]) t.textContent = NOMES[m.status]; };
+  try {
+    const txt = ehPdf ? await textoDoPdf(f) : await ocrImagem(await imagemParaCanvas(f));
+    if (d.open) d.close();
+    if (!txt.trim()) return avisar("Não consegui ler texto nesse arquivo. Tente um print mais nítido.");
+    colarComprovante(txt);
+    if (!lerTextoComprovante(txt).valor) avisar("Li o texto, mas não achei o valor. Confira o texto e corrija se precisar.");
+  } catch (e) { if (d.open) d.close(); avisar("Não consegui ler: " + (e.message || e) + ". Dá para copiar o texto do comprovante e usar Colar."); }
+  finally { OCR_PROG = null; }
+}
+
+// ============ lançamento vindo da Lívia: link #lanc=… ou código FINANCAS-LANC … ============
+// JSON {v:1, tipo:"despesa"|"receita", valor, data:"AAAA-MM-DD", nome, forma, id} em base64url (UTF-8, sem padding)
+function decodificarLanc(b64) {
+  const s = String(b64).replace(/-/g, "+").replace(/_/g, "/");
+  const bin = atob(s + "===".slice((s.length + 3) % 4));
+  const j = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
+  const valor = Math.round(Math.abs(Number(j.valor)) * 100) / 100, data = parseData(j.data);
+  if (!(valor > 0)) throw new Error("sem valor");
+  return { valor, data, nome: String(j.nome || "").slice(0, 80), forma: String(j.forma || "").slice(0, 30), id: String(j.id || "").slice(0, 60), receita: j.tipo === "receita", daLivia: true };
+}
+const RE_CODIGO_LANC = /FINANCAS-LANC[\s:]+([A-Za-z0-9_-]{12,})/;
+function lerTextoComprovante(txt) {
+  const m = String(txt || "").match(RE_CODIGO_LANC);
+  if (m) { try { return decodificarLanc(m[1]); } catch (e) { /* código quebrado: tenta ler como comprovante */ } }
+  return lerComprovante(txt);
+}
+function abrirLinkLancamento() {
+  const m = location.hash.match(/[#&]lanc=([A-Za-z0-9_-]+)/); if (!m) return;
+  try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} // tira os dados do endereço
+  let r; try { r = decodificarLanc(m[1]); } catch (e) { return avisar("Link de lançamento inválido."); }
+  // iPhone: o link do WhatsApp abre no Safari, que tem memória separada do app da tela de início
+  if (navigator.standalone === false || !D.contas.length) {
+    const codigo = "FINANCAS-LANC " + m[1];
+    const d = dialogo2(`<form method="dialog"><h3>Levar para o app</h3>
+      <p class="pequeno">${esc([r.nome, r.forma].filter(Boolean).join(" · ") || "Lançamento")} · <b>${R$(r.valor)}</b>${r.data ? " · " + r.data.split("-").reverse().join("/") : ""}</p>
+      <p class="pequeno">Este link abriu no Safari, que não enxerga os dados do app instalado na tela de início. Toque em <b>Copiar</b>, abra o app Finanças e use <b>Comprovante › colar da área de transferência</b>.</p>
+      <div class="rodape-form">${D.contas.length ? `<button type="button" class="btn" data-aqui>Lançar aqui mesmo</button>` : ""}<button type="button" class="btn primario" data-copiar>Copiar</button></div></form>`);
+    $("[data-copiar]", d).onclick = async () => { try { await navigator.clipboard.writeText(codigo); avisar("Copiado. Agora abra o app Finanças."); d.close(); } catch (e) { const ta = document.createElement("textarea"); ta.className = "copia"; ta.value = codigo; d.querySelector("form").appendChild(ta); ta.select(); avisar("Selecione e copie o código."); } };
+    const aqui = $("[data-aqui]", d); if (aqui) aqui.onclick = () => { d.close(); lancarComprovante(r); };
+    return;
+  }
+  lancarComprovante(r);
 }
 
 // ============ relatório do mês (imprimir / PDF) ============
@@ -1869,6 +1987,7 @@ function ligarEventos() {
     else if (a === "limparRevisar") { D.lancamentos.forEach((l) => (l.revisar = false)); mudou(); }
     else if (a === "relatorio") abrirRelatorio();
     else if (a === "colarComprovante") colarComprovante();
+    else if (a === "conferiCredito") { D.conferenciaCredito[hojeMes()] = new Date().toISOString().slice(0, 10); mudou(); avisar("Conferência do mês registrada. Volta a lembrar no mês que vem."); }
     else if (a === "importarExtrato") { if (!D.contas.length) return avisar("Cadastre um cartão ou conta antes de importar."); $("#arqExtrato").click(); }
     else if (a === "apagarTudo") { if (await confirmar("Apagar TODOS os dados deste aparelho? Baixe uma cópia antes.") && await confirmar("Tem certeza? Não dá para desfazer.")) { localStorage.removeItem(LS_KEY); location.reload(); } }
   };
@@ -1897,6 +2016,7 @@ $("#mesAnt").onclick = () => { mesAtual = somaMes(mesAtual, -1); render(); };
 $("#mesProx").onclick = () => { mesAtual = somaMes(mesAtual, 1); render(); };
 $("#mesLabel").onclick = () => { mesAtual = hojeMes(); render(); };
 $("#fab").onclick = () => formLancamento(novoLancamento("despesa"));
+$("#arqComprovante").onchange = (e) => { const f = e.target.files[0]; e.target.value = ""; if (f) lerArquivoComprovante(f); };
 $("#arqExtrato").onchange = (e) => { const f = e.target.files[0]; e.target.value = ""; if (f) importarExtrato(f); };
 // arrastar e soltar: arquivo de extrato vira importação; texto (ou .txt) do comprovante abre "Colar comprovante"
 (function () {
@@ -1917,7 +2037,7 @@ $("#arqExtrato").onchange = (e) => { const f = e.target.files[0]; e.target.value
     if (arqs.length) {
       const f = arqs[0];
       if (arqs.length > 1) avisar(`Solte um arquivo por vez. Abrindo só ${f.name}.`);
-      if (/^image\//.test(f.type) || f.type === "application/pdf" || /\.(png|jpe?g|heic|heif|webp|gif|pdf)$/i.test(f.name)) return avisar("Imagem e PDF o app não lê sozinho. Abra o comprovante, selecione o texto e arraste o texto (ou copie e use Colar comprovante).");
+      if (/^image\//.test(f.type) || f.type === "application/pdf" || /\.(png|jpe?g|heic|heif|webp|gif|pdf)$/i.test(f.name)) return lerArquivoComprovante(f);
       if (dlgAberto) return avisar("Feche a janela aberta antes de soltar outro arquivo.");
       if (!D.contas.length) return avisar("Cadastre um cartão ou conta antes.");
       let txt = ""; try { txt = (await lerArquivoTexto(f)).replace(/^\uFEFF/, ""); } catch (err) {}
@@ -1936,7 +2056,8 @@ $("#arqExtrato").onchange = (e) => { const f = e.target.files[0]; e.target.value
 document.addEventListener("keydown", (e) => { if (e.key === "n" && !e.ctrlKey && !$("#dlg").open && !["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName)) { e.preventDefault(); formLancamento(novoLancamento("despesa")); } });
 if (!window.FIN_ARTIFACT && "serviceWorker" in navigator && location.protocol.startsWith("http") && (true)) navigator.serviceWorker.register("./sw.js").catch(() => {});
 
-carregar().then(() => { const st = $("#status"); st.textContent = Store.modo === "local" ? "neste aparelho" : "servidor"; st.className = "status"; render(); agendarBadge(); verificarAtualizacao(false); })
+window.addEventListener("hashchange", () => { if (D) abrirLinkLancamento(); });
+carregar().then(() => { setTimeout(abrirLinkLancamento, 300); const st = $("#status"); st.textContent = Store.modo === "local" ? "neste aparelho" : "servidor"; st.className = "status"; render(); agendarBadge(); verificarAtualizacao(false); })
   .catch((e) => { $("#status").textContent = "erro"; $("#main").innerHTML = `<div class="card">Não consegui carregar os dados: ${esc(e.message)}</div>`; });
 </script>
 </body>
