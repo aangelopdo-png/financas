@@ -323,7 +323,7 @@
 <div id="relPrint"></div>
 <div class="solte" id="solte"><div>Solte aqui<small>extrato CSV/OFX ou texto do comprovante</small></div></div>
 
-<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-11-12T00:01:40.585Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
+<script>window.FIN_MODO = "local"; window.FIN_VERSAO = "2026-11-21T15:23:35.634Z"; window.FIN_SEED = {"versao":2,"pessoas":["Angelo"],"categorias":[{"id":"moradia","nome":"Moradia (aluguel, luz, água, gás)","grupo":"Casa","cor":"#2a78d6"},{"id":"casa","nome":"Casa (móveis, eletro, manutenção)","grupo":"Casa","cor":"#1b5fb4"},{"id":"telefone","nome":"Telefone, internet e assinaturas","grupo":"Casa","cor":"#e34948"},{"id":"alimentacao","nome":"Supermercado","grupo":"Alimentação","cor":"#eb6834"},{"id":"refeicoes","nome":"Refeições fora e delivery","grupo":"Alimentação","cor":"#c94e1f"},{"id":"filhos","nome":"Filhos (condução, roupas, cuidados)","grupo":"Filhos","cor":"#1baf7a"},{"id":"educacao","nome":"Escola e mensalidades","grupo":"Filhos","cor":"#e87ba4"},{"id":"carro","nome":"Prestação do carro","grupo":"Transporte","cor":"#eda100"},{"id":"carro_uso","nome":"Combustível, seguro e manutenção","grupo":"Transporte","cor":"#b57b00"},{"id":"saude","nome":"Saúde e farmácia","grupo":"Saúde","cor":"#008300"},{"id":"pessoal","nome":"Vestuário e cuidados pessoais","grupo":"Pessoal","cor":"#4a3aa7"},{"id":"lazer","nome":"Lazer e viagens","grupo":"Pessoal","cor":"#5c6b73"},{"id":"juros","nome":"Juros, tarifas e encargos","grupo":"Dívidas","cor":"#9b1c1c"},{"id":"investimento","nome":"Investimento","grupo":"Patrimônio","cor":"#0e7490"},{"id":"outros","nome":"Outros / a classificar","grupo":"Outros","cor":"#8a8a8a"}],"contas":[],"lancamentos":[],"pagamentos":[],"saldos":{},"investimentos":[],"orcamentos":{}};</script>
 <script>
 (function () {
 // Agente de alertas — Finanças Angelo
@@ -1071,7 +1071,7 @@ function renderLancamentos() {
   return `
   <div class="card">
     <h2>Lançamentos <small>${filtro.soMes ? mesLongo(mesAtual) : "todos"}</small>
-      <span class="acoes"><button class="btn mini primario" data-acao="novo" data-tipo="despesa">${I.mais} despesa</button><button class="btn mini" data-acao="novo" data-tipo="receita">${I.mais} receita</button><button class="btn mini" data-acao="novo" data-tipo="investimento">${I.mais} aporte</button><button class="btn mini" data-acao="importarExtrato">importar extrato</button><button class="btn mini" data-acao="colarComprovante">comprovante</button></span></h2>
+      <span class="acoes"><button class="btn mini primario" data-acao="novo" data-tipo="despesa">${I.mais} despesa</button><button class="btn mini" data-acao="novo" data-tipo="receita">${I.mais} receita</button><button class="btn mini" data-acao="novo" data-tipo="investimento">${I.mais} aporte</button><button class="btn mini" data-acao="importarExtrato">importar extrato</button>${bancoDisponivel() && lerBanco() ? `<button class="btn mini" data-acao="buscarBanco">buscar do banco</button>` : ""}<button class="btn mini" data-acao="colarComprovante">comprovante</button></span></h2>
     <div class="filtros">
       <input id="fTexto" placeholder="buscar…" value="${esc(filtro.texto)}">
       <select id="fConta"><option value="">todas as contas</option>${opt(D.contas, filtro.conta, true)}</select>
@@ -1220,6 +1220,7 @@ function renderConfig() {
         <li>Se o status no topo mostrar "NÃO GRAVOU", o arquivo foi aberto de um jeito que o Chrome bloqueia (ex.: direto pelo app Arquivos). Volte ao passo 2.</li>
       </ol></details>` : ""}
   </div>
+  ${cardBancoHtml()}
   <div class="card">
     <h2>App</h2>
     <div class="lista">
@@ -1560,8 +1561,13 @@ function recalcImport() {
     if (!l.categoriaId) l.categoriaId = sugerirCategoria(l.descricao);
     const k = chaveImport(l.descricao), ko = chaveImport(l.descOrig);
     l.dup = D.lancamentos.some((x) => (l.fitid && x.fitid === l.fitid) || (x.data === l.data && Math.abs(x.valor - l.valor) < 0.005 && [chaveImport(x.descricao), x.descOrig ? chaveImport(x.descOrig) : ""].some((kx) => kx && (kx === k || kx === ko))));
-    l.incluir = !(l.dup || l.tipo === "ignorar" || l.saldo);
+    l.dupSerie = !l.dup && l.tipo === "despesa" && l.parcelas > 1 && D.lancamentos.some((x) => x.tipo === "despesa" && x.parcelas === l.parcelas && (x.parcelaInicial || 1) <= l.parcelaInicial && Math.abs(x.valor - l.valor) < 0.011 && [chaveImport(x.descricao), x.descOrig ? chaveImport(x.descOrig) : ""].some((kx) => kx && (kx === k || kx === ko)));
+    l.incluir = !(l.dup || l.dupSerie || l.tipo === "ignorar" || l.saldo || l.naoMarcar);
   }
+  // parcelas da mesma compra no mesmo arquivo/busca: fica só a mais antiga, que já projeta as seguintes
+  const series = {};
+  for (const l of IMP.linhas) { if (l.tipo !== "despesa" || l.parcelas < 2 || l.dup || l.dupSerie) continue; (series[chaveImport(l.descricao) + "|" + l.valor.toFixed(2) + "|" + l.parcelas] ||= []).push(l); }
+  for (const g of Object.values(series)) { if (g.length < 2) continue; g.sort((a, b) => a.parcelaInicial - b.parcelaInicial); for (const l of g.slice(1)) if (l.parcelaInicial > g[0].parcelaInicial) { l.dupSerie = true; l.incluir = false; } }
 }
 async function importarExtrato(f) {
   if (!D.contas.length) return avisar("Cadastre pelo menos um cartão ou conta antes de importar.");
@@ -1580,6 +1586,8 @@ async function importarExtrato(f) {
 function linhaImportHtml(l, i) {
   const pills = [];
   if (l.dup) pills.push(`<span class="pill atraso">já lançado</span>`);
+  if (l.dupSerie) pills.push(`<span class="pill atraso">parcela de compra já lançada</span>`);
+  if (l.pend) pills.push(`<span class="pill vence">${l.naoMarcar ? "agendado / futuro no banco" : "fatura aberta"}</span>`);
   if (l.tipo === "ignorar") pills.push(`<span class="pill vence">crédito/estorno no cartão · não importa</span>`);
   if (l.tipo === "receita") pills.push(`<span class="pill pago">entrada → receita</span>`);
   if (l.saldo) pills.push(`<span class="pill">saldo · não é lançamento</span>`);
@@ -1597,7 +1605,7 @@ function linhaImportHtml(l, i) {
 function resumoImportHtml() {
   const sel = IMP.linhas.filter((l) => l.incluir && l.tipo !== "ignorar");
   const desp = soma(sel.filter((l) => l.tipo === "despesa"), (l) => l.valor), rec = soma(sel.filter((l) => l.tipo === "receita"), (l) => l.valor);
-  const dup = IMP.linhas.filter((l) => l.dup).length, ign = IMP.linhas.filter((l) => l.tipo === "ignorar").length;
+  const dup = IMP.linhas.filter((l) => l.dup || l.dupSerie).length, ign = IMP.linhas.filter((l) => l.tipo === "ignorar").length;
   const terc = soma(sel.filter((l) => l.tipo === "despesa" && (l.terceiro || "").trim()), (l) => l.valor);
   return `<strong>${sel.length} de ${IMP.linhas.length}</strong>&nbsp;linhas selecionadas · despesas ${R$(desp)}${terc > 0.004 ? ` (${R$(terc)} para terceiros)` : ""}${rec > 0.004 ? " · receitas " + R$(rec) : ""}${dup ? ` · ${dup} já lançada(s), desmarcadas` : ""}${ign ? ` · ${ign} crédito(s)/estorno(s) ignorados` : ""}`;
 }
@@ -1641,13 +1649,248 @@ function confirmarImport() {
   for (const l of sel) {
     const desc = String(l.descricao || "").trim() || "Sem descrição", despesa = l.tipo === "despesa";
     const obj = { id: uid(), tipo: l.tipo, descricao: desc, valor: Math.round(l.valor * 100) / 100, parcelas: despesa ? l.parcelas : 1, parcelaInicial: despesa ? l.parcelaInicial : 1,
-      mesInicio: mesFatura(c, l.data) || l.data.slice(0, 7), mesFim: null, data: l.data, contaId: c.id, categoriaId: despesa ? l.categoriaId : null, pessoa: l.pessoa || D.pessoas[0], obs: "", revisar: false, terceiro: despesa ? (String(l.terceiro || "").trim() || null) : null, recebidos: {}, pagos: {}, origem: "extrato" };
+      mesInicio: mesFatura(c, l.data) || l.data.slice(0, 7), mesFim: null, data: l.data, contaId: c.id, categoriaId: despesa ? l.categoriaId : null, pessoa: l.pessoa || D.pessoas[0], obs: "", revisar: false, terceiro: despesa ? (String(l.terceiro || "").trim() || null) : null, recebidos: {}, pagos: {}, origem: IMP.banco ? "banco" : "extrato" };
     if (l.fitid) obj.fitid = l.fitid;
     if (l.descOrig && l.descOrig !== desc) obj.descOrig = l.descOrig; // texto do extrato, para reconhecer duplicado mesmo renomeado
     D.lancamentos.push(obj); n++;
     if (despesa) { const k = chaveImport(desc); if (k.length >= 3 && categoria(l.categoriaId)) D.regrasImport[k] = l.categoriaId; }
   }
+  if (IMP.banco) { bancoConferido(IMP.banco, c.id); voltarEscolhaBanco(); }
   IMP = null; mudou(); avisar(`${n} lançamento(s) importado(s) para ${c.nome}.`);
+}
+
+// ============ banco (Meu Pluggy / Open Finance): buscar lançamentos direto da conta e do cartão ============
+// As chaves ficam SÓ neste aparelho, numa chave própria do navegador (LS_BANCO), e não entram na "Copiar cópia".
+// API: POST /auth → apiKey (2 h) · GET /items/{id} · GET /accounts?itemId= · GET /v2/transactions?accountId=&dateFrom= (cursor em "next").
+// Sinal: conta corrente, gasto é negativo; cartão, compra é POSITIVA e pagamento/estorno é negativo (documentação da Pluggy).
+const LS_BANCO = "financas-banco", PLUGGY = "https://api.pluggy.ai";
+let BANCO = null, PLUGGY_KEY = null; // BANCO: resultado da última busca · PLUGGY_KEY: { id, k, ate }
+const RE_UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+const p2 = (n) => String(n).padStart(2, "0");
+function hojeISO() { const d = new Date(); return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`; }
+function dataBR(iso) { return iso ? String(iso).slice(0, 10).split("-").reverse().join("/") : ""; }
+function somaDias(iso, n) { const [a, m, d] = iso.split("-").map(Number); const x = new Date(a, m - 1, d + n); return `${x.getFullYear()}-${p2(x.getMonth() + 1)}-${p2(x.getDate())}`; }
+function somaMesData(iso, n) { const [a, m, d] = iso.split("-").map(Number); const mm = somaMes(`${a}-${p2(m)}`, n); const [a2, m2] = mm.split("-").map(Number); return `${mm}-${p2(Math.min(d, new Date(a2, m2, 0).getDate()))}`; }
+function bancoDisponivel() { return !window.FIN_ARTIFACT; }
+function lerBanco() { try { const c = JSON.parse(lsGet(LS_BANCO) || "null"); if (c && c.clientId) { c.itens ||= []; c.mapa ||= {}; return c; } } catch (e) {} return null; }
+function gravarBanco(c) { lsSet(LS_BANCO, JSON.stringify(c)); }
+function lerItensBanco(txt) {
+  const out = [];
+  for (const linha of String(txt || "").split(/\r?\n/)) {
+    const m = linha.match(RE_UUID); if (!m) continue;
+    const id = m[0].toLowerCase(), nome = linha.replace(m[0], " ").replace(/[=:;,|]+/g, " ").replace(/\s+/g, " ").trim();
+    if (!out.some((x) => x.id === id)) out.push({ id, nome: nome || "Banco " + (out.length + 1) });
+  }
+  return out;
+}
+// Data da Pluggy vem em ISO UTC. Só a data (ou meia-noite UTC) vale como está; com hora, converte para Brasília.
+function dataBanco(iso) {
+  if (!iso) return "";
+  const s = String(iso);
+  if (!s.includes("T") || /T00:00:00(\.0+)?(Z|[+-]00:?00)?$/.test(s)) return s.slice(0, 10);
+  const d = new Date(/Z|[+-]\d\d:?\d\d$/.test(s) ? s : s + "Z"); if (isNaN(d)) return s.slice(0, 10);
+  try { const p = new Intl.DateTimeFormat("en-US", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d).reduce((o, x) => ((o[x.type] = x.value), o), {}); return `${p.year}-${p.month}-${p.day}`; }
+  catch (e) { return s.slice(0, 10); }
+}
+function erroPluggy(status, j) {
+  const cod = (j && j.codeDescription) || "";
+  if (cod === "CLIENT_KEYS_UNAUTHORIZED" || status === 401) return "Client ID ou Client Secret não conferem. Copie de novo no painel da Pluggy.";
+  if (cod === "CLIENT_DISABLED") return "A aplicação está desativada no painel da Pluggy.";
+  if (cod === "CLIENT_IP_NOT_ALLOWED") return "A aplicação tem uma lista de IPs permitidos no painel da Pluggy. Tire essa restrição.";
+  if (cod === "ENDPOINT_DEPRECATED" || status === 410) return "A Pluggy desligou este endereço. Atualize o app.";
+  if (status === 403) return "A Pluggy recusou a chave de acesso. Tente de novo.";
+  if (status === 404) return "Não encontrado na Pluggy. Confira o Item ID.";
+  if (status === 429) return "Muitas consultas seguidas. Espere um minuto e tente de novo.";
+  return "A Pluggy respondeu com erro " + status + (j && j.message ? ": " + j.message : "") + ".";
+}
+async function pluggyAuth(cfg, forcar) {
+  if (!forcar && PLUGGY_KEY && PLUGGY_KEY.id === cfg.clientId && PLUGGY_KEY.ate > Date.now()) return PLUGGY_KEY.k;
+  let r; try { r = await fetch(PLUGGY + "/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clientId: cfg.clientId, clientSecret: cfg.clientSecret }) }); }
+  catch (e) { throw new Error("Sem conexão com a Pluggy. Confira a internet."); }
+  const j = await r.json().catch(() => null);
+  if (!r.ok || !j || !j.apiKey) throw new Error(erroPluggy(r.status, j));
+  PLUGGY_KEY = { id: cfg.clientId, k: j.apiKey, ate: Date.now() + 100 * 60000 };
+  return j.apiKey;
+}
+async function pluggyGet(cfg, caminho) {
+  for (let t = 0; t < 2; t++) {
+    const k = await pluggyAuth(cfg, t > 0);
+    let r; try { r = await fetch(PLUGGY + caminho, { headers: { "X-API-KEY": k }, cache: "no-store" }); }
+    catch (e) { throw new Error("Sem conexão com a Pluggy. Confira a internet."); }
+    const j = await r.json().catch(() => null);
+    if (r.ok) return j;
+    if (r.status === 403 && t === 0) continue; // chave de 2 h vencida: pede outra e repete
+    const er = new Error(erroPluggy(r.status, j)); er.status = r.status; throw er;
+  }
+}
+async function pluggyTransacoes(cfg, accountId, desde) {
+  const base = "/v2/transactions?accountId=" + encodeURIComponent(accountId) + "&dateFrom=" + desde, out = [];
+  let caminho = base;
+  for (let p = 0; p < 40 && caminho; p++) {
+    const j = await pluggyGet(cfg, caminho);
+    out.push(...((j && j.results) || []));
+    const nx = j && j.next;
+    if (!nx) break;
+    if (/^https?:/i.test(nx)) { const u = new URL(nx); caminho = u.pathname + u.search; }
+    else caminho = nx.startsWith("?") ? "/v2/transactions" + nx : nx.startsWith("/") ? nx : base + "&after=" + encodeURIComponent(nx);
+  }
+  return out;
+}
+function rotuloContaBanco(acc) {
+  const tipo = acc.type === "CREDIT" ? "Cartão" : acc.subtype === "SAVINGS_ACCOUNT" ? "Poupança" : "Conta corrente";
+  const nome = acc.marketingName || acc.name || "";
+  return tipo + (nome ? " · " + nome : "") + (acc.number ? " •" + String(acc.number).replace(/[^0-9]/g, "").slice(-4) : "");
+}
+// Transações da Pluggy → linhas da mesma conferência do "Importar extrato" (gasto sempre negativo em `bruto`)
+function linhasDoBanco(acc, txs) {
+  const cartao = acc.type === "CREDIT", hoje = hojeISO(), out = [];
+  for (const t of txs) {
+    const valor = Number(t.amount); if (!valor) continue;
+    let data = dataBanco(t.date); if (!data) continue;
+    const meta = t.creditCardMetadata || {}, n = Number(meta.installmentNumber) || 0, tot = Number(meta.totalInstallments) || 0, compra = dataBanco(meta.purchaseDate);
+    // se o banco repete a data da compra em todas as parcelas, empurra a parcela n para o mês dela
+    if (cartao && tot > 1 && n > 1 && compra && mesIdx(data.slice(0, 7)) - mesIdx(compra.slice(0, 7)) < n - 1) data = somaMesData(compra, n - 1);
+    const l = prepararLinhaImport({ data, desc: t.description || t.descriptionRaw || "", valor: cartao ? -valor : valor, fitid: "plg:" + t.id });
+    if (cartao && tot > 1 && n >= 1 && n <= tot) l.parc = { x: n, y: tot, certa: true, semEla: l.parc && l.parc.x === n && l.parc.y === tot ? l.parc.semEla : l.descOrig };
+    l.pend = t.status === "PENDING";
+    l.naoMarcar = l.pend && (!cartao || data > hoje) && !(cartao && tot > 1); // agendado na conta ou lançamento futuro: fica desmarcado
+    out.push(l);
+  }
+  out.sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0));
+  return out;
+}
+function destinoBanco(cfg, c) {
+  const m = cfg.mapa[c.acc.id]; if (m && conta(m)) return m;
+  const cartao = c.acc.type === "CREDIT", nomes = semAcento(`${c.item.nome} ${c.acc.name || ""} ${c.acc.marketingName || ""}`).toLowerCase(), fim = String(c.acc.number || "").replace(/[^0-9]/g, "").slice(-4);
+  const cand = D.contas.filter((x) => (cartao ? x.tipo === "cartao" : x.tipo === "conta"));
+  const nm = (x) => semAcento(x.nome).toLowerCase();
+  return (cand.find((x) => x.final && fim && fim === String(x.final)) || cand.find((x) => nomes.includes(nm(x))) || cand.find((x) => nm(x).split(/\s+/).some((p) => p.length > 2 && nomes.includes(p))) || cand[0] || D.contas[0]).id;
+}
+function novosNoBanco(c, contaId) { const g = IMP; IMP = { arquivo: "", contaId, gastoNeg: true, linhas: c.linhas }; recalcImport(); const n = c.linhas.filter((l) => l.incluir).length; IMP = g; return n; }
+function desdePadraoBanco(cfg) { return cfg.ultima ? somaDias(cfg.ultima.slice(0, 10), -20) : somaMes(hojeMes(), -1) + "-01"; }
+
+function cardBancoHtml() {
+  if (!bancoDisponivel()) return "";
+  const cfg = lerBanco();
+  return `<div class="card">
+    <h2>Banco <small>Meu Pluggy · Open Finance</small></h2>
+    ${cfg ? `<div class="lista"><div class="item"><div class="txt"><div class="tit" style="white-space:normal">${cfg.itens.length} conexão(ões): ${esc(cfg.itens.map((i) => i.nome).join(", "))}</div><div class="meta" style="white-space:normal">${cfg.ultima ? "última importação em " + new Date(cfg.ultima).toLocaleString("pt-BR") : "ainda não importou nada"}</div></div><button class="btn mini" data-acao="configBanco">chaves</button></div></div>
+      <div style="margin-top:10px"><button class="btn primario" data-acao="buscarBanco">Buscar do banco</button></div>`
+    : `<p class="pequeno" style="margin:0 0 10px">Traga os lançamentos da conta e do cartão direto do banco, sem baixar arquivo. É gratuito para uso pessoal pelo Meu Pluggy (até 5 conexões, só leitura).</p><button class="btn primario" data-acao="configBanco">Ligar ao banco</button>`}
+    <p class="pequeno" style="margin-top:10px">Os dados vêm pelos servidores da Pluggy, empresa autorizada no Open Finance. As chaves ficam só neste aparelho e não entram na "Copiar cópia". A Pluggy atualiza uma vez por dia e a autorização vale 1 ano.</p>
+  </div>`;
+}
+function formBanco() {
+  if (!bancoDisponivel()) return avisar("Nesta página do claude.ai a ligação com o banco não funciona. Use o app instalado.");
+  const cfg = lerBanco() || { clientId: "", clientSecret: "", itens: [], mapa: {}, ultima: null };
+  const form = abrir(`<h3>Ligar ao banco (Meu Pluggy)</h3>
+    <details ${cfg.clientId ? "" : "open"} style="margin-bottom:12px"><summary class="pequeno" style="cursor:pointer">Onde acho estas três informações</summary>
+      <ol class="passos pequeno" style="margin-top:6px">
+        <li>Em <b>meu.pluggy.ai</b>, conecte seus bancos (você aprova no app de cada banco).</li>
+        <li>Entre em <b>dashboard.pluggy.ai</b> com a mesma conta e abra <b>Applications</b>. Abra a sua aplicação (ou crie uma).</li>
+        <li>Na aplicação, copie o <b>Client ID</b> e o <b>Client Secret</b>. O Secret aparece uma vez só; se perdeu, gere outro.</li>
+        <li>Abra <b>Demo</b> → <b>Connect Account</b> → escolha <b>MeuPluggy</b> (não o banco) e entre com a conta do Meu Pluggy.</li>
+        <li>Em <b>Connected Items</b>, copie o <b>Item ID</b> de cada banco.</li>
+      </ol></details>
+    <div class="campo"><label>Client ID</label><input name="clientId" id="bancoClientId" required autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="${esc(cfg.clientId)}"></div>
+    <div class="campo"><label>Client Secret</label><input name="clientSecret" id="bancoClientSecret" type="password" required autocomplete="off" value="${esc(cfg.clientSecret)}"></div>
+    <div class="campo"><label>Item ID de cada banco, um por linha (pode pôr o nome antes: Nubank = …)</label><textarea name="itens" id="bancoItens" rows="3" required autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Nubank = 00000000-0000-0000-0000-000000000000">${esc(cfg.itens.map((i) => `${i.nome} = ${i.id}`).join("\n"))}</textarea></div>
+    <div id="bancoTeste"></div>
+    <p class="pequeno">As chaves ficam guardadas só neste aparelho. Elas dão acesso de leitura ao seu extrato, então não mande para ninguém.</p>
+    <div class="rodape-form">${cfg.clientId ? `<button type="button" class="btn perigo esq" id="bancoApagar">Apagar chaves</button>` : ""}<button class="btn" value="cancelar" formnovalidate>Fechar</button><button class="btn primario" type="submit" id="bancoSalvar">Testar e salvar</button></div>`,
+    (f) => { testarSalvarBanco(f, cfg); return false; });
+  $("#bancoApagar", form)?.addEventListener("click", async () => { if (await confirmar("Apagar as chaves do banco deste aparelho?")) { lsDel(LS_BANCO); PLUGGY_KEY = null; BANCO = null; $("#dlg").close(); render(); avisar("Chaves apagadas deste aparelho."); } });
+}
+async function testarSalvarBanco(f, antigo) {
+  const out = $("#bancoTeste", f), btn = $("#bancoSalvar", f);
+  if (btn.dataset.pronto) { $("#dlg").close(); render(); buscarBanco(); return; }
+  const novo = { clientId: f.clientId.value.trim(), clientSecret: f.clientSecret.value.trim(), itens: lerItensBanco(f.itens.value), mapa: antigo.mapa || {}, ultima: antigo.ultima || null };
+  if (!novo.itens.length) { out.innerHTML = alertaHtml("ruim", "!", "Não achei nenhum Item ID. Ele tem este formato: 8-4-4-4-12 letras e números, separados por traço."); return; }
+  btn.disabled = true; btn.textContent = "Testando…"; out.innerHTML = "";
+  try {
+    await pluggyAuth(novo, true);
+    const linhas = [];
+    for (const it of novo.itens) {
+      try { const rs = ((await pluggyGet(novo, "/accounts?itemId=" + it.id)) || {}).results || []; linhas.push(alertaHtml(rs.length ? "bom" : "", rs.length ? "✓" : "!", `<strong>${esc(it.nome)}</strong>: ${rs.length ? rs.map((a) => esc(rotuloContaBanco(a))).join(", ") : "conectou, mas ainda não veio nenhuma conta. A Pluggy pode levar alguns minutos na primeira vez."}`)); }
+      catch (e) { linhas.push(alertaHtml("ruim", "!", `<strong>${esc(it.nome)}</strong>: ${esc(e.message)}`)); }
+    }
+    gravarBanco(novo); out.innerHTML = linhas.join("") + alertaHtml("info", "i", "Chaves salvas neste aparelho.");
+    btn.disabled = false; btn.textContent = "Buscar agora"; btn.dataset.pronto = "1";
+  } catch (e) { out.innerHTML = alertaHtml("ruim", "!", esc(e.message)); btn.disabled = false; btn.textContent = "Testar e salvar"; }
+}
+function buscarBanco() {
+  if (!bancoDisponivel()) return avisar("Nesta página do claude.ai a busca no banco não funciona. Use o app instalado.");
+  const cfg = lerBanco(); if (!cfg || !cfg.itens.length) return formBanco();
+  if (!D.contas.length) return avisar("Cadastre pelo menos um cartão ou conta antes de buscar.");
+  abrir(`<h3>Buscar do banco</h3>
+    <div class="campo"><label>Trazer movimentos desde</label><input type="date" name="desde" id="bancoDesde" required max="${hojeISO()}" value="${desdePadraoBanco(cfg)}"></div>
+    <p class="pequeno">${cfg.itens.length} conexão(ões): ${esc(cfg.itens.map((i) => i.nome).join(", "))}. A Pluggy atualiza os dados uma vez por dia, então uma compra de hoje pode aparecer só amanhã. Nada é lançado antes de você conferir.</p>
+    <div id="bancoProg" class="pequeno" style="min-height:18px"></div>
+    <div class="rodape-form"><button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn primario" type="submit" id="bancoIr">Buscar</button></div>`,
+    (f) => { executarBuscaBanco(cfg, f.desde.value, f); return false; });
+}
+async function executarBuscaBanco(cfg, desde, form) {
+  const btn = $("#bancoIr", form), prog = (t) => { const el = $("#bancoProg", form); if (el) el.textContent = t; };
+  if (btn.disabled) return;
+  btn.disabled = true; btn.textContent = "Buscando…";
+  const res = { desde, contas: [], avisos: [] };
+  try {
+    for (const it of cfg.itens) {
+      prog(`Consultando ${it.nome}…`);
+      let item = null;
+      try { item = await pluggyGet(cfg, "/items/" + it.id); }
+      catch (e) { if (e.status === 404) { res.avisos.push(`${it.nome}: Item ID não encontrado. Se você reconectou o banco, o Item ID mudou. Copie o novo no painel da Pluggy e atualize em "chaves".`); continue; } throw e; }
+      if (item) {
+        const cod = item.error && item.error.code;
+        if (item.status === "LOGIN_ERROR" || cod) res.avisos.push(`${it.nome}: a conexão está com erro${cod === "USER_AUTHORIZATION_EXPIRED" ? " (autorização vencida)" : ""}. Reconecte o banco em meu.pluggy.ai e refaça o "Connect Account" no painel da Pluggy.`);
+        else if (item.status === "OUTDATED") res.avisos.push(`${it.nome}: a última atualização falhou, então os dados podem estar atrasados.`);
+        if (item.consentExpiresAt) { const dias = Math.round((new Date(item.consentExpiresAt) - Date.now()) / 864e5); if (dias <= 30) res.avisos.push(`${it.nome}: a autorização ${dias < 0 ? "venceu" : "vence em " + dias + " dia(s)"}. Renove no painel da Pluggy (Demo → Connect Account → MeuPluggy).`); }
+      }
+      const contas = ((await pluggyGet(cfg, "/accounts?itemId=" + it.id)) || {}).results || [];
+      if (!contas.length) res.avisos.push(`${it.nome}: nenhuma conta veio do banco ainda.`);
+      for (const acc of contas) {
+        prog(`${it.nome}: lendo ${rotuloContaBanco(acc)}…`);
+        const txs = await pluggyTransacoes(cfg, acc.id, desde);
+        res.contas.push({ item: it, acc, atualizado: item && item.lastUpdatedAt, linhas: linhasDoBanco(acc, txs), feito: false });
+      }
+    }
+  } catch (e) { if (document.contains(form)) { btn.disabled = false; btn.textContent = "Buscar"; prog(""); } avisar(e.message); return; }
+  if (!document.contains(form) || !$("#dlg").open) return; // fechou a janela no meio da busca
+  BANCO = res; $("#dlg").close(); abrirEscolhaBanco();
+}
+function abrirEscolhaBanco() {
+  if (!BANCO) return;
+  const cfg = lerBanco() || { mapa: {} };
+  const linhas = BANCO.contas.map((c, i) => {
+    const cartao = c.acc.type === "CREDIT", cd = c.acc.creditData || {}, novos = c.feito ? 0 : novosNoBanco(c, destinoBanco(cfg, c));
+    return `<div class="item">
+      <div class="avatar" style="background:${cartao ? "var(--despesa)" : "var(--receita)"}">${cartao ? "C" : "$"}</div>
+      <div class="txt"><div class="tit" style="white-space:normal">${esc(c.item.nome)} · ${esc(rotuloContaBanco(c.acc))}</div>
+        <div class="meta" style="white-space:normal">${c.linhas.length} movimento(s) · ${c.feito ? "conferido" : novos + " novo(s)"}${cartao ? ` · fatura aberta ${R$(c.acc.balance)}${cd.creditLimit ? " · limite " + R$(cd.creditLimit) : ""}${cd.balanceDueDate ? " · vence " + dataBR(cd.balanceDueDate) : ""}` : ` · saldo ${R$(c.acc.balance)}`}</div></div>
+      ${c.linhas.length ? `<button type="button" class="btn mini ${c.feito || !novos ? "" : "primario"}" data-banco="${i}">${c.feito ? "ver de novo" : "conferir"}</button>` : ""}</div>`;
+  }).join("");
+  const at = BANCO.contas.map((c) => c.atualizado).filter(Boolean).sort()[0];
+  const form = abrir(`<h3>Contas encontradas no banco <small class="pequeno">desde ${dataBR(BANCO.desde)}</small></h3>
+    ${BANCO.avisos.map((a) => alertaHtml("", "!", esc(a))).join("")}
+    ${BANCO.contas.length ? `<div class="lista">${linhas}</div>` : `<div class="vazio">Nenhuma conta veio do banco.</div>`}
+    <p class="pequeno" style="margin-top:10px">Toque em "conferir" para ver linha a linha e escolher em qual cartão ou conta do app cai. O que já foi lançado fica desmarcado.${at ? " Dados do banco atualizados em " + new Date(at).toLocaleString("pt-BR") + "." : ""}</p>
+    <div class="rodape-form"><button class="btn primario" value="cancelar" formnovalidate id="bancoConcluir">Concluir</button></div>`, () => {});
+  $("#bancoConcluir", form).addEventListener("click", () => { BANCO = null; });
+  form.addEventListener("click", (e) => { const b = e.target.closest("[data-banco]"); if (b) conferirContaBanco(Number(b.dataset.banco)); });
+}
+function conferirContaBanco(i) {
+  const c = BANCO.contas[i], cfg = lerBanco() || { mapa: {} }, dlg = $("#dlg");
+  dlg.close();
+  IMP = { arquivo: `${c.item.nome} · ${rotuloContaBanco(c.acc)}`, contaId: destinoBanco(cfg, c), gastoNeg: true, linhas: c.linhas, banco: { i, accountId: c.acc.id } };
+  recalcImport(); abrirImport();
+  // ao cancelar ou tocar fora, volta para a lista de contas (ao importar, quem volta é o confirmarImport)
+  $("button[value=cancelar]", dlg).addEventListener("click", voltarEscolhaBanco);
+  dlg.onclick = (e) => { if (e.target === dlg) { dlg.close(); voltarEscolhaBanco(); } };
+}
+function voltarEscolhaBanco() { setTimeout(() => { if (BANCO && !$("#dlg").open) abrirEscolhaBanco(); }, 80); }
+function bancoConferido(b, contaId) {
+  const cfg = lerBanco(); if (cfg) { cfg.mapa[b.accountId] = contaId; cfg.ultima = new Date().toISOString(); gravarBanco(cfg); }
+  if (BANCO && BANCO.contas[b.i]) BANCO.contas[b.i].feito = true;
 }
 
 // ============ colar comprovante (texto copiado da imagem/PDF) → lançamento ============
@@ -1987,6 +2230,8 @@ function ligarEventos() {
     else if (a === "limparRevisar") { D.lancamentos.forEach((l) => (l.revisar = false)); mudou(); }
     else if (a === "relatorio") abrirRelatorio();
     else if (a === "colarComprovante") colarComprovante();
+    else if (a === "buscarBanco") buscarBanco();
+    else if (a === "configBanco") formBanco();
     else if (a === "conferiCredito") { D.conferenciaCredito[hojeMes()] = new Date().toISOString().slice(0, 10); mudou(); avisar("Conferência do mês registrada. Volta a lembrar no mês que vem."); }
     else if (a === "importarExtrato") { if (!D.contas.length) return avisar("Cadastre um cartão ou conta antes de importar."); $("#arqExtrato").click(); }
     else if (a === "apagarTudo") { if (await confirmar("Apagar TODOS os dados deste aparelho? Baixe uma cópia antes.") && await confirmar("Tem certeza? Não dá para desfazer.")) { localStorage.removeItem(LS_KEY); location.reload(); } }
